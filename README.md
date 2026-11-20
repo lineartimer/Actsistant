@@ -5,9 +5,10 @@ An assistant for the EU AI Act: ask a compliance question, get an answer that ci
 
 # Quick start
 
+* Run init-repo.command
+  * In case of insufficient priveleges
+    * Cd into the scripts folder and use `ls -l` to see access priviledges
+    * Use `chmod +x init-repo.command` to add execute priviledge
 * Start Docker Desktop
 * Open a terminal in VS Code and run:
-
-```
-docker compose up -d weaviate
-```
+* Run `docker compose up -d weaviate`
