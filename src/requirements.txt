@@ -1,1 +1,4 @@
+fastapi
+structlog
+uvicorn
 weaviate-client

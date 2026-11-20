@@ -23,6 +23,7 @@ cd -- "$(dirname -- "$BASH_SOURCE")"
 
 rm -rf ../src/.venv
 rm -rf ../src/__pycache__
+rm -rf ../src/api/__pycache__
 
 echo
 read -p "Press any key to continue..."
