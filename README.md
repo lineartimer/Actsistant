@@ -12,4 +12,6 @@ An assistant for the EU AI Act: ask a compliance question, get an answer that ci
 * Start Docker Desktop
 * Open a terminal in VS Code and run:
 * Run `docker compose up -d weaviate`
+* To ask Actsistant a question: [localhost:5005/api/ask?query=What is the EU AI Act?](http://localhost:5005/api/ask?query=What is the EU AI Act?)
+* Documentation: [localhost:5005/docs](http://localhost:5005/docs)
 * To reset everything locally, run cleanup.command
