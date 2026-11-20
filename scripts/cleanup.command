@@ -19,7 +19,24 @@ tell application "Terminal"
 end tell
 eof
 
+ensure_docker() {
+    docker info >/dev/null 2>&1 && return 0
+    echo "Starting Docker Desktop..."
+    open -a Docker || return 1
+    for _ in $(seq 1 60); do
+        sleep 2
+        docker info >/dev/null 2>&1 && return 0
+    done
+    return 1
+}
+
 cd -- "$(dirname -- "$BASH_SOURCE")"
+
+if ensure_docker; then
+    (cd ../src && docker compose down -v --remove-orphans)
+else
+    echo "Docker could not be started. Cleanup of containers failed."
+fi
 
 rm -rf ../src/.venv
 rm -rf ../src/__pycache__
