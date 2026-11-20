@@ -3,13 +3,11 @@ import re
 import xml.etree.ElementTree as ET
 
 
-# A unit of the Act (recital, article paragraph, annex) longer than this
-# that consists of a list of points is split into one chunk per point
 MAX_CHUNK_LENGTH = 2500
 
 _INDENT = "  "
 
-# CSS classes of the headings and titles of chapters, sections, articles and annexes
+# Headings (css classes)
 _HEADING_CLASSES = {
     "oj-ti-art",
     "oj-sti-art",
@@ -19,41 +17,38 @@ _HEADING_CLASSES = {
     "eli-title"
 }
 
-# Sub-headings within annexes, e.g. "Section A — ..." or "3. Quality management system"
+# Sub-headings (css classes)
 _SUBHEADING_CLASS = "oj-ti-grseq-1"
 
-# Footnote markers in the text, e.g. the "(1)" in "...Social Committee (1),"
+# Footnotes (css classes)
 _FOOTNOTE_CLASS = "oj-note-tag"
 
 
 @dataclass
 class Chunk:
-    chunk_id: str       # Stable id, e.g. "rct_12", "art_6.par_1", "art_5.par_1.pt_a", "anx_VIII.sec_A.pt_1"
-    kind: str           # "recital", "article" or "annex"
-    heading: str        # Citation, e.g. "Article 6(1)", "Article 5(1), point (a)", "Annex VIII, Section A, point 1"
-    title: str          # Title of the article or annex ("" for recitals)
-    chapter: str        # e.g. "Chapter III – HIGH-RISK AI SYSTEMS" ("" outside the enacting terms)
-    section: str        # e.g. "Section 1 – Classification of AI systems as high-risk" or an annex sub-heading
+    chunk_id: str
+    kind: str
+    heading: str
+    title: str
+    chapter: str
+    section: str
     article: int | None
-    paragraph: str      # Number of the paragraph within the article ("" if the article has none)
+    paragraph: str
     text: str
-    position: int = 0   # Order within the Act
+    position: int = 0
 
 
 @dataclass
 class _Piece:
     text: str
-    section: str = ""   # Annex sub-heading the piece belongs to ("" if none)
-    label: str = ""     # Label of the point, e.g. "(a)", "3.1." or "—" ("" for a whole unit)
-    ordinal: int = 0    # Number of the point within its section, starting at 1
+    section: str = ""
+    label: str = ""
+    ordinal: int = 0
 
 
-def chunk_act(xhtml: bytes) -> list[Chunk]:
+def chunk(xhtml: bytes) -> list[Chunk]:
     """
-    Splits the EU AI Act into chunks along its structure: one chunk per recital,
-    per numbered paragraph of an article (or per article if it has no numbered
-    paragraphs) and per annex. Long units that consist of a list of points are
-    split further into one chunk per point.
+    Splits the EU AI Act into chunks along its structure.
 
     The Publications Office XHTML uses ELI markup: every recital, chapter, section,
     article and annex is a div with a stable id ("rct_12", "cpt_III", "cpt_III.sct_1",
@@ -71,12 +66,12 @@ def chunk_act(xhtml: bytes) -> list[Chunk]:
 
     chunks = []
 
-    # Preamble: recitals (the citations before them are skipped)
+    # Preamble
     for child in elements["pbl_1"]:
         if re.fullmatch(r"rct_\d+", child.get("id", "")):
             chunks.append(_chunk_recital(child))
 
-    # Enacting terms: chapters, sections and articles
+    # Chapters, sections and articles
     for chapter in elements["enc_1"]:
         chunks.extend(_chunk_chapter(chapter))
 
@@ -112,12 +107,10 @@ def _chunk_recital(element: ET.Element) -> Chunk:
 
 
 def _chunk_chapter(
-    element: ET.Element, chapter: str = "", section: str = ""
+    element: ET.Element,
+    chapter: str = "",
+    section: str = ""
 ) -> list[Chunk]:
-    """
-    Walks a chapter (or a section of a chapter) down to its articles.
-    """
-
     element_id = element.get("id", "")
 
     if re.fullmatch(r"cpt_[IVXL]+", element_id):
@@ -138,7 +131,6 @@ def _chunk_chapter(
             chunks.extend(_chunk_article(child, chapter, section))
 
         elif child_id.startswith("cpt_") and ".tit_" not in child_id:
-            # A section of the chapter
             chunks.extend(_chunk_chapter(child, chapter, section))
 
     return chunks
@@ -158,12 +150,12 @@ def _chunk_article(element: ET.Element, chapter: str, section: str) -> list[Chun
     paragraphs = [
         child for child in body if re.fullmatch(r"\d{3}\.\d{3}", child.get("id", ""))
     ]
+
     unnumbered = [child for child in body if child not in paragraphs]
 
     chunks = []
-
     if unnumbered:
-        # An article without numbered paragraphs (e.g. Article 3, Definitions)
+        # An article without numbered paragraphs
         chunks.extend(_chunk_unit(
             f"art_{number}", f"Article {number}", unnumbered, paragraph="", **fields
         ))
@@ -185,8 +177,7 @@ def _chunk_article(element: ET.Element, chapter: str, section: str) -> list[Chun
 
 def _chunk_annex(element: ET.Element) -> list[Chunk]:
     numeral = element.get("id").split("_")[1]
-
-    # The document titles of an annex are e.g. "ANNEX III" and the title proper
+    
     titles = [_text(child) for child in element if "oj-doc-ti" in _css_class(child)]
 
     return _chunk_unit(
@@ -203,18 +194,11 @@ def _chunk_annex(element: ET.Element) -> list[Chunk]:
 
 
 def _chunk_unit(
-    base_id: str, citation: str, children: list[ET.Element], **fields
+    base_id: str,
+    citation: str,
+    children: list[ET.Element],
+    **fields
 ) -> list[Chunk]:
-    """
-    Turns a unit of the Act (article paragraph, article, annex) into chunks.
-
-    Args:
-        base_id: Chunk id of the unit, e.g. "art_6.par_1".
-        citation: How the unit is cited, e.g. "Article 6(1)".
-        children: Elements that make up the body of the unit.
-        fields: Fields of the chunks that are the same for the whole unit.
-    """
-
     chunks = []
     for piece in _split_into_pieces(children):
         parts = _citation_parts(piece)
@@ -235,12 +219,6 @@ def _chunk_unit(
 
 
 def _split_into_pieces(children: list[ET.Element]) -> list[_Piece]:
-    """
-    Returns a single piece for a short unit. A long unit that consists of a list
-    of points is split into one piece per point, each prefixed with the lead-in
-    text (and annex sub-heading) that precedes the points.
-    """
-
     text = "\n".join(_render(children))
     has_points = any(_tag(child) == "table" for child in children)
 
@@ -273,11 +251,9 @@ def _split_into_pieces(children: list[ET.Element]) -> list[_Piece]:
                 point_lines = lead_in + _render_table(member, 0)
 
             elif point_lines is None:
-                # Text before the first point
                 lead_in.extend(_render([member]))
 
             else:
-                # Text after a point belongs to that point
                 point_lines.extend(_render([member]))
 
         pieces.append(_Piece("\n".join(point_lines), heading, label, ordinal))
@@ -288,10 +264,6 @@ def _split_into_pieces(children: list[ET.Element]) -> list[_Piece]:
 def _split_into_sections(
     children: list[ET.Element]
 ) -> list[tuple[str, list[ET.Element]]]:
-    """
-    Groups the children of a unit by annex sub-heading.
-    """
-
     sections = []
     heading, members = "", []
 
@@ -304,7 +276,6 @@ def _split_into_sections(
             heading, members = _text(child), []
 
         else:
-            # Consecutive sub-headings, e.g. "Section 1" followed by its title
             heading = f"{heading} – {_text(child)}" if heading else _text(child)
 
     sections.append((heading, members))
@@ -313,10 +284,6 @@ def _split_into_sections(
 
 
 def _citation_parts(piece: _Piece) -> list[str]:
-    """
-    Where the piece is within its unit, e.g. ["Section A", "point 1"] or ["point 1(a)"].
-    """
-
     parts = []
 
     if piece.section:
@@ -337,15 +304,12 @@ def _citation_parts(piece: _Piece) -> list[str]:
         label = re.sub(r"[^\w.]", "", piece.label).rstrip(".")
 
         if not label:
-            # The points of a dash list have no label of their own
             parts.append(f"item {piece.ordinal}")
 
         elif parts and parts[-1].startswith("point") and piece.label.startswith("("):
-            # A lettered point under a numbered sub-heading: "point 1(a)"
             parts[-1] += piece.label
 
         elif parts and parts[-1].startswith("point") and label.startswith(parts[-1][6:] + "."):
-            # A sub-numbered point: "point 3.1" rather than "point 3, point 3.1"
             parts[-1] = f"point {label}"
 
         elif piece.label.startswith("("):
@@ -358,20 +322,11 @@ def _citation_parts(piece: _Piece) -> list[str]:
 
 
 def _slug(part: str) -> str:
-    """
-    "Section A" -> "sec_A", "point 1(a)" -> "pt_1_a", "point 3.1" -> "pt_3_1"
-    """
-
     part = part.replace("Section", "sec").replace("point", "pt")
-
     return re.sub(r"\W+", "_", part).strip("_")
 
 
 def _render(elements, depth: int = 0) -> list[str]:
-    """
-    Renders block content (paragraphs, point tables, nested divs) as indented lines.
-    """
-
     lines = []
     for element in elements:
         tag = _tag(element)
@@ -392,10 +347,6 @@ def _render(elements, depth: int = 0) -> list[str]:
 
 
 def _render_table(table: ET.Element, depth: int) -> list[str]:
-    """
-    Renders enumerated points as "(a) text", with nested points indented one level.
-    """
-
     lines = []
     for row in _rows(table):
         cells = []
@@ -412,7 +363,6 @@ def _render_table(table: ET.Element, depth: int) -> list[str]:
             lines.extend(_INDENT * depth + line for line in cells[0])
             continue
 
-        # The first cell is the label of the point, the rest is its text
         label = " ".join(cells[0])
         body = [line for cell in cells[1:] for line in cell]
 
@@ -434,10 +384,6 @@ def _rows(table: ET.Element):
 
 
 def _point_label(table: ET.Element) -> str:
-    """
-    Label of the first point in a table, e.g. "(a)", "1.", "3.1." or "—".
-    """
-
     for row in _rows(table):
         for cell in row:
             if _tag(cell) == "td":
@@ -449,10 +395,6 @@ def _point_label(table: ET.Element) -> str:
 
 
 def _body(element: ET.Element) -> list[ET.Element]:
-    """
-    Children of a unit without its headings and title.
-    """
-
     return [
         child for child in element
         if not _HEADING_CLASSES & set(_css_class(child).split())
@@ -460,10 +402,6 @@ def _body(element: ET.Element) -> list[ET.Element]:
 
 
 def _title(element: ET.Element) -> str:
-    """
-    Title of a chapter, section or article (the text of its "eli-title" child).
-    """
-
     for child in element:
         if "eli-title" in _css_class(child):
             return _text(child)
@@ -472,10 +410,6 @@ def _title(element: ET.Element) -> str:
 
 
 def _heading(element: ET.Element, css_class: str) -> str:
-    """
-    Text of the first descendant with the given CSS class, e.g. "CHAPTER III".
-    """
-
     for descendant in element.iter():
         if css_class in _css_class(descendant):
             return _text(descendant)
@@ -484,10 +418,6 @@ def _heading(element: ET.Element, css_class: str) -> str:
 
 
 def _text(element: ET.Element) -> str:
-    """
-    Text of an element without footnote markers and with whitespace collapsed.
-    """
-
     parts = []
 
     def collect(e: ET.Element) -> None:
@@ -509,7 +439,6 @@ def _text(element: ET.Element) -> str:
 
 
 def _tag(element: ET.Element) -> str:
-    # Strip the XHTML namespace
     return element.tag.rsplit("}", 1)[-1]
 
 

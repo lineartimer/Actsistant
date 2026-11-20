@@ -8,13 +8,12 @@ from weaviate.exceptions import WeaviateConnectionError, WeaviateStartUpError
 from weaviate.util import generate_uuid5
 
 from config import WEAVIATE_GRPC_PORT, WEAVIATE_HOST, WEAVIATE_PORT
-from database.chunker import Chunk, chunk_act
+from database.chunker import Chunk, chunk
 from database.download import download_act
 
 
 COLLECTION_NAME = "EuAiActChunk"
 
-# Weaviate runs in Docker and may still be starting when the app starts
 CONNECTION_TIMEOUT = 60
 
 
@@ -27,11 +26,7 @@ class DatabaseError(Exception):
 
 def connect_database() -> weaviate.WeaviateClient:
     """
-    Connects to Weaviate. The returned client is a context manager that closes
-    the connection on exit:
-
-        with connect_database() as client:
-            ...
+    Connects to Weaviate database.
     """
 
     deadline = time.monotonic() + CONNECTION_TIMEOUT
@@ -54,7 +49,7 @@ def connect_database() -> weaviate.WeaviateClient:
 async def initialize_database() -> None:
     """
     Creates the collection of chunks of the EU AI Act and, on the first startup,
-    downloads the Act, chunks it and stores the chunks.
+    downloads the Act, chunks it and stores it in the database.
     """
 
     with connect_database() as client:
@@ -64,7 +59,7 @@ async def initialize_database() -> None:
             return
 
         xhtml = await download_act()
-        chunks = chunk_act(xhtml)
+        chunks = chunk(xhtml)
 
         _insert_chunks(collection, chunks)
 
@@ -109,8 +104,7 @@ def _insert_chunks(collection: Collection, chunks: list[Chunk]) -> None:
             properties = {
                 key: value for key, value in asdict(chunk).items() if value is not None
             }
-
-            # The id is derived from the chunk id, so inserting a chunk again replaces it
+            
             batch.add_object(properties=properties, uuid=generate_uuid5(chunk.chunk_id))
 
     failed = collection.batch.failed_objects
