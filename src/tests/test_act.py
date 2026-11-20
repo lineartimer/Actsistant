@@ -18,12 +18,18 @@ def test_act_and_dump_to_md():
         )
 
         collection = client.collections.get(COLLECTION_NAME)
-        chunks = sorted(
-            (obj.properties for obj in collection.iterator()),
-            key=lambda properties: properties["position"]
-        )
+        objects = list(collection.iterator(include_vector=True))
 
-    assert chunks, f"Collection {COLLECTION_NAME} is empty"
+    assert objects, f"Collection {COLLECTION_NAME} is empty"
+
+    dimensions = {len(obj.vector.get("default", [])) for obj in objects}
+    assert dimensions and 0 not in dimensions, "Some chunks have no vector"
+    assert len(dimensions) == 1, f"Vectors have different dimensions: {dimensions}"
+
+    chunks = sorted(
+        (obj.properties for obj in objects),
+        key=lambda properties: properties["position"]
+    )
 
     OUTPUT_PATH.write_text(_to_markdown(chunks), encoding="utf-8")
 

@@ -35,6 +35,12 @@ source .venv/bin/activate
 pip3 install --upgrade pip
 pip3 install -r requirements.txt
 
+if command -v ollama >/dev/null 2>&1; then
+    ollama pull qwen3-embedding:0.6b
+else
+    echo "Error: Ollama is not installed."
+fi
+
 if ensure_docker; then
     docker compose down -v --remove-orphans
     docker compose up -d weaviate
