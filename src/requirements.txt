@@ -1,4 +1,5 @@
 fastapi
+httpx
 structlog
 uvicorn
 weaviate-client

@@ -4,10 +4,12 @@ from fastapi import FastAPI
 import uvicorn
 
 from api.ask import ask_router
+from database.database import initialize_database
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    await initialize_database()
     yield
 
 app = FastAPI(lifespan=lifespan)

@@ -17,7 +17,7 @@ end tell
 eof
 
 cd -- "$(dirname -- "$BASH_SOURCE")"
-cd ../src
+cd ../../src
 
 source .venv/bin/activate
 

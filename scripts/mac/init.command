@@ -29,7 +29,7 @@ ensure_docker() {
 
 cd -- "$(dirname -- "$BASH_SOURCE")"
 
-cd ../src
+cd ../../src
 python3 -m venv .venv
 source .venv/bin/activate
 pip3 install --upgrade pip
