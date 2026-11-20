@@ -6,3 +6,4 @@ __pycache__
 .venv
 
 src/database/*.xhtml
+src/tests/test_act.md

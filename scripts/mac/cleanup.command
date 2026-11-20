@@ -42,7 +42,10 @@ rm -rf ../../src/.venv
 rm -rf ../../src/__pycache__
 rm -rf ../../src/api/__pycache__
 rm -rf ../../src/database/__pycache__
+rm -rf ../../src/tests/__pycache__
+
 rm -f ../../src/database/*.xhtml
+rm -f ../../src/tests/test_act.md
 
 echo
 read -p "Press any key to continue..."
