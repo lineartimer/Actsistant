@@ -47,8 +47,8 @@ MacOS
 
 Example questions
 
-* Is AI that screens job applications considered high-risk?
 * Can my employer use AI to read my emotions at work?
+* Is AI that screens job applications considered high-risk?
 * Has any company been fined under the AI Act yet?
 
 The first two of these questions can be answered using the text, the third one cannot.

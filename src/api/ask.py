@@ -1,5 +1,5 @@
 import asyncio
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, Body, HTTPException
 from pydantic import BaseModel, Field, StringConstraints
 import structlog
 from typing import Annotated
@@ -10,6 +10,23 @@ from core.agents.search_agent import answer_question
 
 # Keep the question well inside the context window
 MAX_QUESTION_LENGTH = 2000
+
+# For the /docs page
+ASK_EXAMPLES = {
+    "emotion_recognition": {
+        "summary": "Emotion recognition at work",
+        "value": {"question": "Can my employer use AI to read my emotions at work?"},
+    },
+    "high_risk_hiring": {
+        "summary": "AI screening job applications",
+        "value": {"question": "Is AI that screens job applications considered high-risk?"},
+    },
+    "fines": {
+        "summary": "Fines so far (not answerable from the text)",
+        "description": "The Act does not say who has been fined, so the answer should say it cannot tell.",
+        "value": {"question": "Has any company been fined under the AI Act yet?"},
+    }
+}
 
 
 _logger = structlog.get_logger(__name__)
@@ -32,7 +49,9 @@ class AskRequest(BaseModel):
 
 
 @ask_router.post("/api/ask")
-async def ask(request: AskRequest) -> dict:
+async def ask(
+    request: Annotated[AskRequest, Body(openapi_examples=ASK_EXAMPLES)],
+) -> dict:
     _logger.info("Ask api called.", question=request.question)
 
     try:
