@@ -14,7 +14,7 @@ from database.database import (
 
 DATASET_PATH = Path(__file__).with_name("golden_dataset.json")
 
-# Ratio of seaches returning the expected chunk
+# Ratio of seaches returning the correct chunk
 MIN_SEARCH_HIT_RATE = 0.8
 
 
@@ -32,8 +32,6 @@ def test_search():
     hit_count = sum(_rank(question, hits) is not None for question, hits in answerable)
     hit_rate = hit_count / len(answerable)
 
-    print()
-    print(_summary(results))
     print(f"\nSearch hit rate: {hit_count}/{len(answerable)} = {hit_rate:.0%}")
 
     assert hit_rate >= MIN_SEARCH_HIT_RATE, (
@@ -58,25 +56,3 @@ def _rank(question: dict, hits: list[Hit]) -> int | None:
             return rank
 
     return None
-
-
-def _outcome(question: dict, hits: list[Hit]) -> str:
-    if not question["answerable"]:
-        return "out of scope"
-
-    rank = _rank(question, hits)
-
-    return f"HIT (rank {rank})" if rank else "MISS"
-
-
-def _summary(results: list[tuple[dict, list[Hit]]]) -> str:
-    lines = [f"{'id':4} {'outcome':13} {'expected':34} returned"]
-
-    for question, hits in results:
-        expected = ", ".join(question["expected_headings"]) or "-"
-        returned = ", ".join(hit.chunk.heading for hit in hits)
-        lines.append(
-            f"{question['id']:4} {_outcome(question, hits):13} {expected[:34]:34} {returned}"
-        )
-
-    return "\n".join(lines)
