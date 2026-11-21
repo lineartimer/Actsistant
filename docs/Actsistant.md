@@ -11,7 +11,7 @@ The api uses FastAPI's built-in mechanisms to verify the input.
 
 ## Database
 
-The downloaded AI Act is stored in a [Weaviate](https://weaviate.io/) database.
+The downloaded AI Act is stored in a [Weaviate](https://weaviate.io/) database. Hybrid search is used to find relevant chunks (semantic search + BM25 keyword search).
 
 Reasons for choosing Weaviate:
 * Hybrid search in one call
@@ -19,9 +19,21 @@ Reasons for choosing Weaviate:
 
 The act is downloaded, chunked and embeddings are created on the first startup. This takes about a minute on a MacBook Pro.
 
+The Weaviate collection has the following properties:
+* `chunk_id`
+* `kind`
+* `heading`
+* `title`
+* `chapter`
+* `section`
+* `article`
+* `paragraph`
+* `text`
+* `position`
+
 ### Chunking
 
-The chunking follows the organic structure of the document: one unit of legal text (e.g. a paragraph) corresponds to one chunk. The heading of the text is stored in the chunk because it's often the heading that specifies what the text applies to.
+Chunking follows the organic structure of the document: one unit of legal text (e.g. a paragraph) corresponds to one chunk. The heading of the text is stored in the chunk because it's often the heading that specifies what the text applies to.
 
 With this design, there is no need for overlapping chunks, and one citation in the response will correspond to one unit of text in the act.
 
@@ -48,22 +60,12 @@ The following embedding model is used: qwen3-embedding:0.6b. Reasons for selecti
 
 # Tests
 
-As this is a PoC, the tool isn't being extensively tested.
+As this is just a PoC, the tool isn't being extensively tested.
 
 Currently, there are tests for the following:
 * Content of the database
 * The search
 * HTTP behavior of the API
-
-# Database
-
-On its first startup the app downloads the EU AI Act, chunks it, embeds the chunks with an embedding model served by Ollama and stores chunks and vectors in Weaviate. Later startups skip this because the collection is already populated. `cleanup.command` removes the Weaviate volume and the downloaded Act, so the next startup starts from scratch. Ollama has to be running whenever the app runs: the embedding model is needed to embed each question as well.
-
-* Source: the official XHTML of Regulation (EU) 2024/1689 from the Publications Office (`publications.europa.eu/resource/celex/32024R1689`), kept as `src/database/eu_ai_act.xhtml`
-* Chunking follows the structure of the Act: one chunk per recital, per numbered article paragraph (or per article when it has no numbered paragraphs) and per annex. Units longer than ~2 500 characters that consist of a list of points are split into one chunk per point, each prefixed with its lead-in text
-* Weaviate collection `EuAiActChunk`, one object per chunk, with the properties `chunk_id` (e.g. `art_6.par_1`), `kind` (recital / article / annex), `heading` (citation, e.g. `Article 6(1)`), `title`, `chapter`, `section`, `article`, `paragraph`, `text` and `position`
-* Vectors are computed by the app (the collection is configured for self-provided vectors) with `qwen3-embedding:0.6b`, pulled by `init.command`. The embedded text of a chunk is its heading and title followed by its text. Another Ollama model can be set with the `EMBEDDING_MODEL` environment variable; as vectors of different models cannot be compared, the model is recorded in the collection and a change rebuilds the collection on the next startup
-* Retrieval is hybrid search: vector search on the embedded question combined with BM25 keyword search
 
 # Agent
 

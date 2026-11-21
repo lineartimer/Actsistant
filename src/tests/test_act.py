@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from database.database import COLLECTION_NAME, connect_database
+from database.database import COLLECTION_NAME, VECTOR_NAME, connect_database
 
 
 OUTPUT_PATH = Path(__file__).with_name("test_act.md")
@@ -22,7 +22,7 @@ def test_act_and_dump_to_md():
 
     assert objects, f"Collection {COLLECTION_NAME} is empty"
 
-    dimensions = {len(obj.vector.get("default", [])) for obj in objects}
+    dimensions = {len(obj.vector.get(VECTOR_NAME, [])) for obj in objects}
     assert dimensions and 0 not in dimensions, "Some chunks have no vector"
     assert len(dimensions) == 1, f"Vectors have different dimensions: {dimensions}"
 

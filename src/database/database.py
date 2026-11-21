@@ -15,6 +15,7 @@ from database.embedding import embed_documents, embed_query
 
 
 COLLECTION_NAME = "EuAiActChunk"
+VECTOR_NAME = "embedding"
 
 CONNECTION_TIMEOUT = 60
 
@@ -117,6 +118,7 @@ async def search_chunks(query: str, limit: int = 5) -> list[Hit]:
     response = collection.query.hybrid(
         query=query,
         vector=await embed_query(query),
+        target_vector=VECTOR_NAME,
         alpha=HYBRID_ALPHA,
         limit=limit,
         return_metadata=MetadataQuery(score=True)
@@ -148,7 +150,7 @@ def _create_collection(client: weaviate.WeaviateClient) -> Collection:
     return client.collections.create(
         COLLECTION_NAME,
         description=description,
-        vector_config=Configure.Vectors.self_provided(),
+        vector_config=Configure.Vectors.self_provided(name=VECTOR_NAME),
         properties=[
             Property(name="chunk_id", data_type=DataType.TEXT, tokenization=Tokenization.FIELD),
             Property(name="kind", data_type=DataType.TEXT, tokenization=Tokenization.FIELD),
@@ -194,7 +196,7 @@ def _insert_chunks(
 
             batch.add_object(
                 properties=properties,
-                vector=vector,
+                vector={VECTOR_NAME: vector},
                 uuid=generate_uuid5(chunk.chunk_id)
             )
 
