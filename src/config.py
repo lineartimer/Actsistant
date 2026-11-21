@@ -9,3 +9,5 @@ OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434")
 
 EMBEDDING_MODEL = os.getenv("EMBEDDING_MODEL", "qwen3-embedding:0.6b")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "qwen3:8b")
+
+ANSWER_TIMEOUT = float(os.getenv("ANSWER_TIMEOUT", "120"))

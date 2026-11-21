@@ -1,5 +1,7 @@
+import asyncio
 from fastapi.testclient import TestClient
 import pytest
+from structlog.testing import capture_logs
 
 import api.ask as ask_api
 from api.ask import MAX_QUESTION_LENGTH
@@ -63,6 +65,42 @@ def test_longest_question_is_accepted(client: TestClient, asked: list[str]):
 
     assert response.status_code == 200
     assert len(asked) == 1
+
+
+def test_failed_answer_is_a_500_without_details(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    async def answer_question(question: str) -> Answer:
+        raise ConnectionError("Ollama is not reachable at http://localhost:11434")
+
+    monkeypatch.setattr(ask_api, "answer_question", answer_question)
+
+    with capture_logs() as logs:
+        response = client.post("/api/ask", json={"question": QUESTION})
+
+    assert response.status_code == 500
+    assert "localhost" not in response.text, "The cause must not leak to the caller"
+
+    [error] = [log for log in logs if log["log_level"] == "error"]
+    assert error["event"] == "Answering the question failed"
+    assert error["question"] == QUESTION
+    assert error["exc_info"], "The cause belongs in the log"
+
+
+def test_timed_out_answer_is_a_504(client: TestClient, monkeypatch: pytest.MonkeyPatch):
+    async def answer_question(question: str) -> Answer:
+        await asyncio.sleep(10)
+        return Answer(text="Too late", hits=[])
+
+    monkeypatch.setattr(ask_api, "answer_question", answer_question)
+    monkeypatch.setattr(ask_api, "ANSWER_TIMEOUT", 0.05)
+
+    with capture_logs() as logs:
+        response = client.post("/api/ask", json={"question": QUESTION})
+
+    assert response.status_code == 504
+
+    [error] = [log for log in logs if log["log_level"] == "error"]
+    assert error["event"] == "Answering the question timed out"
+    assert error["timeout"] == 0.05
 
 
 def test_question_in_query_string_is_not_allowed(client: TestClient, asked: list[str]):
