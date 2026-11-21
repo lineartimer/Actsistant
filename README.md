@@ -1,7 +1,14 @@
 Actsistant
 ==========
 
-Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers contain sources if the question can be answered based on the legal text. Runs on a cloud LLM or fully locally with Ollama.
+Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers contain sources if the question can be answered based on the legal text.
+
+Typical users that can benefit from using Actsistant:\
+* Product owners or engineering teams that build agentic AI systems
+* An internal compliance team approving the company's AI tools
+* Consultants on AI governance
+
+The service can be run using a cloud LLM or fully locally with Ollama.
 
 The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
