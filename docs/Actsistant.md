@@ -9,6 +9,11 @@ Actsistant is an AI tool that can answer questions on the EU AI Act currently in
 
 The api uses FastAPI's built-in mechanisms to verify the input.
 
+# Limitations
+
+* History not being kept
+* No user management/authentication implemented
+
 # Tests
 
 As this is a PoC, the tool isn't being extensively tested.
