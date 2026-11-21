@@ -1,7 +1,22 @@
 Actsistant
 ==========
 
+Actsistant is an AI tool that can answer questions on the EU AI Act currently in the PoC stage.
 
+# Architecture
+
+## API
+
+The api uses FastAPI's built-in mechanisms to verify the input.
+
+# Tests
+
+As this is a PoC, the tool isn't being extensively tested.
+
+Currently, there are tests for the following:
+* Content of the database
+* The search
+* HTTP behavior of the API
 
 # Database
 
@@ -20,3 +35,10 @@ Questions are answered by a LangGraph agent (`src/core/agents/search_agent.py`) 
 * The agent has one tool, `search_eu_ai_act` (`src/core/tools/search.py`), which runs the hybrid search described above and returns the matching passages with their citation headings
 * The graph is the plain tool calling loop followed by a formatting step: the model is instructed to search before answering, the tool node runs the search, the model answers from the passages it got back, citing them inline by their bracketed heading, e.g. `[Article 6(1)]`, and a final `respond` node turns the conversation into a structured answer with the text and the headings of the sources. The model may search more than once; a recursion limit stops it from looping
 * Of the retrieved passages, only those the structured answer names as sources are returned by `/api/ask` as `sources`, best ranked first. The schema of the structured answer is built per question and allows only the headings of the retrieved passages as sources, so the model cannot name a passage it has not seen; it can still attribute a claim to the wrong passage, which only an evaluation can catch. The retrieved and the cited headings are logged for every question
+
+# API
+
+Questions are asked with `POST /api/ask` (`src/api/ask.py`). The interactive documentation is served at `/docs`.
+
+* The request body is JSON with one field, `question`. It is a POST with a body rather than a GET with a query parameter because questions are free text that may be long and need no URL encoding this way, and because query strings end up in proxy and server access logs while bodies do not. Whitespace around the question is stripped; an empty question or one longer than 2 000 characters is rejected with `422`
+* The response is JSON with `result`, the text of the answer, and `sources`, the passages the answer names as its sources, best ranked first, each with `title` (the citation heading), `score` and `source` (the text of the passage)
