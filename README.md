@@ -1,7 +1,9 @@
 Actsistant
 ==========
 
-Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers provide sources if the question can be answered based on the legal text. Runs on a cloud LLM or fully locally with Ollama.
+Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers contain sources if the question can be answered based on the legal text. Runs on a cloud LLM or fully locally with Ollama.
+
+The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
 # Prerequisites
 
@@ -14,7 +16,7 @@ For local run:
 
 # Quickstart
 
-Clone the repo.
+Clone the repo and start Docker Desktop.
 
 The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created.
 
@@ -55,11 +57,9 @@ Prerequisites:
 * The init script has been run
 * The application has been started at least once
 
-The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
-
 In VS Code, click on the test tab and run the tests.
 
-You can also run tests from the terminal:
+Alternatively, run tests from the terminal:
 * CD into the `src` folder
 * Rune `source .venv/bin/activate`
 * Run `pytest`
