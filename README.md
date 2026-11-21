@@ -13,14 +13,16 @@ An assistant for the EU AI Act: ask a compliance question, get an answer that ci
 # Quick start
 
 * Clone the repo
-* Run init.command
-  * In case of insufficient priveleges
-    * CD into the scripts folder and use `ls -l` to see access priviledges
-    * If missing, use `chmod +x init-repo.command` to add execute priviledge
-* Run run.command
+* Run the init script
+  * macOS: `scripts/mac/init.command`
+    * In case of insufficient privileges, cd into `scripts/mac` and use `ls -l` to see access privileges
+    * If missing, use `chmod +x *.command` to add execute privilege
+  * Windows: `scripts\win\init.ps1` (right-click, Run with PowerShell)
+    * If PowerShell refuses to run scripts, start it from a terminal instead: `powershell -ExecutionPolicy Bypass -File scripts\win\init.ps1`
+* Run the run script: `run.command` on macOS, `run.ps1` on Windows
 * Example usage: [localhost:5005/api/ask?query=What is the EU AI Act?](http://localhost:5005/api/ask?query=What is the EU AI Act?)
 * Documentation: [localhost:5005/docs](http://localhost:5005/docs)
-* To reset everything locally, run cleanup.command
+* To reset everything locally, run the cleanup script: `cleanup.command` on macOS, `cleanup.ps1` on Windows
 
 # Debugging
 
