@@ -1,51 +1,69 @@
 Actsistant
 ==========
 
-An assistant for the EU AI Act: ask a compliance question, get an answer that cites the articles it relied on. RAG backend built with FastAPI, LangGraph and Weaviate; runs on a cloud LLM or fully locally with Ollama.
+Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers provide sources if the question can be answered based on the legal text. Runs on a cloud LLM or fully locally with Ollama.
 
 # Prerequisites
 
-* 16 GB of RAM
-* [Ollama](https://ollama.com/download)
 * [Docker Desktop](https://docs.docker.com/get-docker/desktop/)
 * Optional: [VS Code](https://code.visualstudio.com/download) for debugging
 
-# Quick start
+For local run:
+* 16 GB of RAM
+* [Ollama](https://ollama.com/download)
 
-* Clone the repo
-* Run the init script
-  * macOS: `scripts/mac/init.command`
-    * In case of insufficient privileges, cd into `scripts/mac` and use `ls -l` to see access privileges
-    * If missing, use `chmod +x *.command` to add execute privilege
-  * Windows: `scripts\win\init.ps1` (right-click, Run with PowerShell)
-    * If PowerShell refuses to run scripts, start it from a terminal instead: `powershell -ExecutionPolicy Bypass -File scripts\win\init.ps1`
-* Run the run script: `run.command` on macOS, `run.ps1` on Windows
-* Example usage: [localhost:5005/api/ask?query=What is the EU AI Act?](http://localhost:5005/api/ask?query=What is the EU AI Act?)
-* Documentation: [localhost:5005/docs](http://localhost:5005/docs)
-* To reset everything locally, run the cleanup script: `cleanup.command` on macOS, `cleanup.ps1` on Windows
+# Quickstart
+
+Clone the repo.
+
+The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created.
+
+Depending on your system, follow the below instructions:
+
+Windows
+
+* Run `scripts\win\init.ps1`
+* Run `scripts\win\run.ps1`
+* Open [http://localhost:5005/docs](http://localhost:5005/docs) and have a play with the endpoints
+* To reset everything locally, run the cleanup script: `scripts\win\cleanup.ps1`
+
+MacOS
+
+* Run `scripts/mac/init.command`
+  * In case of insufficient privileges, cd into `scripts/mac` and use `ls -l` to see access privileges
+  * If missing, use `chmod +x *.command` to add execute privilege
+* Run `scripts/mac/run.command`
+* Open [http://localhost:5005/docs](http://localhost:5005/docs) and have a play with the endpoints
+* To reset everything locally, run the cleanup script: `scripts/mac/cleanup.command`
+
+Example questions
+
+* Is AI that screens job applications considered high-risk?
+* Can my employer use AI to read my emotions at work?
+* Has any company been fined under the AI Act yet?
+
+The first two of these questions can be answered using the text, the third one cannot.
 
 # Debugging
 
-* Open Actsistant.code-workspace in VS Code (double click it)
+* Open Actsistant.code-workspace in VS Code (double-click it)
+* Hit F5
 
 # Testing
 
+Prerequisites:
+* The init script has been run
+* The application has been started at least once
+
 The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
-# Database
+In VS Code, click on the test tab and run the tests.
 
-On its first startup the app downloads the EU AI Act, chunks it, embeds the chunks with an embedding model served by Ollama and stores chunks and vectors in Weaviate. Later startups skip this because the collection is already populated. `cleanup.command` removes the Weaviate volume and the downloaded Act, so the next startup starts from scratch. Ollama has to be running whenever the app runs: the embedding model is needed to embed each question as well.
+You can also run tests from the terminal:
+* CD into the `src` folder
+* Rune `source .venv/bin/activate`
+* Run `pytest`
 
-* Source: the official XHTML of Regulation (EU) 2024/1689 from the Publications Office (`publications.europa.eu/resource/celex/32024R1689`), kept as `src/database/eu_ai_act.xhtml`
-* Chunking follows the structure of the Act: one chunk per recital, per numbered article paragraph (or per article when it has no numbered paragraphs) and per annex. Units longer than ~2 500 characters that consist of a list of points are split into one chunk per point, each prefixed with its lead-in text
-* Weaviate collection `EuAiActChunk`, one object per chunk, with the properties `chunk_id` (e.g. `art_6.par_1`), `kind` (recital / article / annex), `heading` (citation, e.g. `Article 6(1)`), `title`, `chapter`, `section`, `article`, `paragraph`, `text` and `position`
-* Vectors are computed by the app (the collection is configured for self-provided vectors) with `qwen3-embedding:0.6b`, pulled by `init.command`. The embedded text of a chunk is its heading and title followed by its text. Another Ollama model can be set with the `EMBEDDING_MODEL` environment variable; as vectors of different models cannot be compared, the model is recorded in the collection and a change rebuilds the collection on the next startup
-* Retrieval is hybrid search: vector search on the embedded question combined with BM25 keyword search
+# More information
 
-# Agent
-
-Questions are answered by a LangGraph agent (`src/core/agents/search_agent.py`) running a chat model served by Ollama, `qwen3:8b` by default (pulled by `init.command`; another Ollama model that supports tool calling can be set with the `CHAT_MODEL` environment variable). The first answer after a start takes longer because Ollama loads the model.
-
-* The agent has one tool, `search_eu_ai_act` (`src/core/tools/search.py`), which runs the hybrid search described above and returns the matching passages with their citation headings
-* The graph is the plain tool calling loop followed by a formatting step: the model is instructed to search before answering, the tool node runs the search, the model answers from the passages it got back, citing them inline by their bracketed heading, e.g. `[Article 6(1)]`, and a final `respond` node turns the conversation into a structured answer with the text and the headings of the sources. The model may search more than once; a recursion limit stops it from looping
-* Of the retrieved passages, only those the structured answer names as sources are returned by `/api/ask` as `sources`, best ranked first. The schema of the structured answer is built per question and allows only the headings of the retrieved passages as sources, so the model cannot name a passage it has not seen; it can still attribute a claim to the wrong passage, which only an evaluation can catch. The retrieved and the cited headings are logged for every question
+A detailed documentation of Actsistant can be found in the `docs` folder.
