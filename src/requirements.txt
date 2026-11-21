@@ -1,0 +1,9 @@
+fastapi
+httpx
+langchain-ollama
+langgraph
+pydantic
+pytest
+structlog
+uvicorn
+weaviate-client
