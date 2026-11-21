@@ -1,9 +1,8 @@
 import asyncio
-from typing import Annotated
-
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, StringConstraints
 import structlog
+from typing import Annotated
 
 from config import ANSWER_TIMEOUT
 from core.agents.search_agent import answer_question
@@ -28,7 +27,7 @@ class AskRequest(BaseModel):
         StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_QUESTION_LENGTH)
     ] = Field(
         description="The question about the EU AI Act",
-        examples=["Is AI that screens job applications considered high-risk?"]
+        examples=["Can my employer use AI to read my emotions at work?"]
     )
 
 
