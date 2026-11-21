@@ -3,7 +3,11 @@ import re
 import xml.etree.ElementTree as ET
 
 
-MAX_CHUNK_LENGTH = 2500
+# Units of the act containing lists can be very long,
+# so we need to split them. 2500 characters is about 500 tokens,
+# which is the upper limit of the rule-of-thumb chunk-size of a
+# few hundred tokens
+LIST_SPLIT_THRESHOLD = 2500
 
 _INDENT = "  "
 
@@ -222,7 +226,7 @@ def _split_into_pieces(children: list[ET.Element]) -> list[_Piece]:
     text = "\n".join(_render(children))
     has_points = any(_tag(child) == "table" for child in children)
 
-    if len(text) <= MAX_CHUNK_LENGTH or not has_points:
+    if len(text) <= LIST_SPLIT_THRESHOLD or not has_points:
         return [_Piece(text=text)]
 
     pieces = []

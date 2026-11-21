@@ -9,6 +9,38 @@ Actsistant is an AI tool that can answer questions on the EU AI Act. Currently i
 
 The api uses FastAPI's built-in mechanisms to verify the input.
 
+## Database
+
+The downloaded AI Act is stored in a [Weaviate](https://weaviate.io/) database.
+
+Reasons for choosing Weaviate:
+* Hybrid search in one call
+* Weaviate is one of the established vector databases
+
+The act is downloaded, chunked and embeddings are created on the first startup. This takes about a minute on a MacBook Pro.
+
+### Chunking
+
+The chunking follows the organic structure of the document: one unit of legal text (e.g. a paragraph) corresponds to one chunk. The heading of the text is stored in the chunk because it's often the heading that specifies what the text applies to.
+
+With this design, there is no need for overlapping chunks, and one citation in the response will correspond to one unit of text in the act.
+
+The downside is that chunk sizes vary, and for long chunks, the quality of the search might decrease but no chunks get truncated.
+
+Also, lists are treated differently than regular text. Long lists are split into several chunks but the text directly preceding the list is added to each chunk. Reasons for this are:
+* Units of texts containing lists can be very long
+* Units of texts without a list center around one topic, whereas those with lists have diverse semantic meanings
+* Staying within the context budget
+
+Beyond the PoC level implementation, it might be worth measuring the performance of the search with different chunking strategies.
+
+### Embeddings
+
+The following embedding model is used: qwen3-embedding:0.6b. Reasons for selecting this model:
+* The model is small enough to run on a laptop
+* Benchmark quality is high for its size
+* Permissive Apache 2.0 licence
+
 # Limitations
 
 * History not being kept
