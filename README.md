@@ -26,6 +26,10 @@ An assistant for the EU AI Act: ask a compliance question, get an answer that ci
 
 * Open Actsistant.code-workspace in VS Code (double click it)
 
+# Testing
+
+The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
+
 # Database
 
 On its first startup the app downloads the EU AI Act, chunks it, embeds the chunks with an embedding model served by Ollama and stores chunks and vectors in Weaviate. Later startups skip this because the collection is already populated. `cleanup.command` removes the Weaviate volume and the downloaded Act, so the next startup starts from scratch. Ollama has to be running whenever the app runs: the embedding model is needed to embed each question as well.

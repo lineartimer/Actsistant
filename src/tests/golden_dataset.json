@@ -1,0 +1,424 @@
+{
+  "name": "Actsistant golden dataset",
+  "version": "1.0",
+  "created": "2026-11-21",
+  "source": "Regulation (EU) 2024/1689 (EU AI Act), chunk ids as stored in the Weaviate collection EuAiActChunk (see tests/test_act.md)",
+  "description": "Plain-language questions about the EU AI Act with reference answers: 20 answerable questions and 5 out-of-scope controls. Used to inspect retrieval results manually and, later, to grade generated answers.",
+  "how_to_use": {
+    "retrieval": "Send each question to /api/ask and check whether at least one of expected_chunk_ids (shown in the API as the heading listed in expected_headings) appears among the returned sources. related_chunk_ids are acceptable supporting hits, not required ones.",
+    "generation": "Compare the generated answer against expected_answer. A passing answer states every item in key_facts, cites the articles listed in expected_headings, and does not contradict the Act. For questions marked answerable=false the correct behaviour is to say the Act does not cover them; their related_chunk_ids are near-miss passages search is likely to return but that do not answer the question.",
+    "schema": {
+      "id": "stable identifier",
+      "question": "the question as a lay person would ask it",
+      "category": "topic of the Act the question belongs to",
+      "difficulty": "easy = answered by a single chunk; medium = needs one or two chunks and some interpretation; hard = answer is spread over several chunks or has exceptions",
+      "answerable": "false when the Act does not cover the question; the expected behaviour is then to say so",
+      "expected_chunk_ids": "chunks that must be retrieved for a good answer",
+      "expected_headings": "the heading property of those chunks, as the API returns it in the title field",
+      "related_chunk_ids": "chunks that add useful context but are not required; for unanswerable questions, near-miss passages that search will probably surface",
+      "expected_answer": "reference answer in plain language",
+      "key_facts": "short facts a generated answer must contain to count as correct"
+    }
+  },
+  "questions": [
+    {
+      "id": "q01",
+      "question": "What counts as an \"AI system\" under the EU AI Act?",
+      "category": "definitions",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_3.pt_1"],
+      "expected_headings": ["Article 3, point (1)"],
+      "related_chunk_ids": [],
+      "expected_answer": "The Act defines an AI system as a machine-based system that runs with some degree of autonomy, may adapt after it has been deployed, and infers from its input how to produce outputs such as predictions, content, recommendations or decisions that can influence physical or virtual environments (Article 3, point 1).",
+      "key_facts": [
+        "machine-based system",
+        "operates with varying levels of autonomy",
+        "may exhibit adaptiveness after deployment",
+        "infers from input how to generate outputs such as predictions, content, recommendations or decisions",
+        "outputs can influence physical or virtual environments"
+      ]
+    },
+    {
+      "id": "q02",
+      "question": "Does the AI Act apply to companies that are based outside the EU?",
+      "category": "scope",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_2.par_1"],
+      "expected_headings": ["Article 2(1)"],
+      "related_chunk_ids": ["art_3.pt_3", "art_3.pt_4"],
+      "expected_answer": "Yes. The Act applies to providers that place AI systems or general-purpose AI models on the EU market or put them into service in the EU, regardless of whether they are established in the EU or in a third country. It also applies to providers and deployers located outside the EU when the output of their AI system is used in the EU (Article 2(1), points a and c).",
+      "key_facts": [
+        "applies to providers placing AI on the EU market irrespective of where they are established",
+        "applies to providers and deployers in third countries where the output of the AI system is used in the Union"
+      ]
+    },
+    {
+      "id": "q03",
+      "question": "Does the AI Act apply to AI used by the military or for national security?",
+      "category": "scope",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_2.par_3"],
+      "expected_headings": ["Article 2(3)"],
+      "related_chunk_ids": [],
+      "expected_answer": "No. The Act does not apply to AI systems placed on the market, put into service or used exclusively for military, defence or national security purposes, regardless of who carries out those activities. It also does not affect the competences of Member States concerning national security (Article 2(3)).",
+      "key_facts": [
+        "does not apply to AI systems used exclusively for military, defence or national security purposes",
+        "regardless of the type of entity carrying out those activities",
+        "does not affect Member States' competences on national security"
+      ]
+    },
+    {
+      "id": "q04",
+      "question": "I use AI tools at home just for fun. Do the rules of the AI Act apply to me?",
+      "category": "scope",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_2.par_10"],
+      "expected_headings": ["Article 2(10)"],
+      "related_chunk_ids": ["art_3.pt_4"],
+      "expected_answer": "No. The Act does not impose obligations on individuals who use AI systems in the course of a purely personal, non-professional activity (Article 2(10)). Such a person is not a 'deployer' under the Act (Article 3, point 4).",
+      "key_facts": [
+        "no obligations for natural persons using AI in a purely personal non-professional activity"
+      ]
+    },
+    {
+      "id": "q05",
+      "question": "Is free and open-source AI exempt from the AI Act?",
+      "category": "scope",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_2.par_12"],
+      "expected_headings": ["Article 2(12)"],
+      "related_chunk_ids": [],
+      "expected_answer": "Partly. AI systems released under free and open-source licences are outside the Act, unless they are placed on the market or put into service as high-risk AI systems, as a prohibited practice under Article 5, or as a system subject to the transparency obligations of Article 50. In those cases the rules apply regardless of the licence (Article 2(12)).",
+      "key_facts": [
+        "open-source AI systems are generally exempt",
+        "exception: high-risk AI systems",
+        "exception: systems falling under Article 5 (prohibited practices) or Article 50 (transparency obligations)"
+      ]
+    },
+    {
+      "id": "q06",
+      "question": "Can a government use AI to give its citizens a social score?",
+      "category": "prohibited practices",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_5.par_1.pt_c"],
+      "expected_headings": ["Article 5(1), point (c)"],
+      "related_chunk_ids": [],
+      "expected_answer": "No. The Act prohibits AI systems that evaluate or classify people over time based on their social behaviour or personal characteristics, where the resulting social score leads to detrimental treatment in contexts unrelated to where the data was collected, or to treatment that is unjustified or disproportionate to the behaviour (Article 5(1), point c). The ban is not limited to governments; it applies to any use.",
+      "key_facts": [
+        "social scoring is a prohibited AI practice",
+        "covers evaluation or classification of people based on social behaviour or personal characteristics",
+        "prohibited where the score leads to detrimental treatment in unrelated contexts or disproportionate treatment"
+      ]
+    },
+    {
+      "id": "q07",
+      "question": "Can my employer use AI to read my emotions at work?",
+      "category": "prohibited practices",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_5.par_1.pt_f"],
+      "expected_headings": ["Article 5(1), point (f)"],
+      "related_chunk_ids": [],
+      "expected_answer": "No, as a rule. The Act prohibits using AI systems to infer the emotions of a person in the workplace and in education institutions. The only exception is where the system is used for medical or safety reasons (Article 5(1), point f).",
+      "key_facts": [
+        "emotion recognition at the workplace is prohibited",
+        "also prohibited in education institutions",
+        "exception for medical or safety reasons"
+      ]
+    },
+    {
+      "id": "q08",
+      "question": "Can the police use live facial recognition cameras in public places?",
+      "category": "prohibited practices",
+      "difficulty": "hard",
+      "answerable": true,
+      "expected_chunk_ids": ["art_5.par_1.pt_h"],
+      "expected_headings": ["Article 5(1), point (h)"],
+      "related_chunk_ids": ["art_5.par_2", "art_5.par_3"],
+      "expected_answer": "Only in narrow, exceptional cases. The use of real-time remote biometric identification in publicly accessible spaces for law enforcement is prohibited unless strictly necessary for one of three objectives: the targeted search for victims of abduction, trafficking or sexual exploitation and for missing persons; the prevention of a specific, substantial and imminent threat to life or of a terrorist attack; or locating a suspect of a serious crime listed in Annex II that carries a maximum sentence of at least four years (Article 5(1), point h). Even then the use must be limited to confirming the identity of the targeted person, is subject to safeguards and a fundamental rights impact assessment, must be registered in the EU database (Article 5(2)) and needs prior authorisation by a judicial or independent administrative authority (Article 5(3)).",
+      "key_facts": [
+        "real-time remote biometric identification in public spaces for law enforcement is prohibited in principle",
+        "exception: search for victims of abduction, trafficking, sexual exploitation and missing persons",
+        "exception: prevention of a specific, substantial and imminent threat to life or a terrorist attack",
+        "exception: locating suspects of serious crimes listed in Annex II punishable by at least four years",
+        "subject to safeguards and prior authorisation"
+      ]
+    },
+    {
+      "id": "q09",
+      "question": "What makes an AI system \"high-risk\"?",
+      "category": "high-risk systems",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_6.par_1", "art_6.par_2"],
+      "expected_headings": ["Article 6(1)", "Article 6(2)"],
+      "related_chunk_ids": ["art_6.par_3"],
+      "expected_answer": "There are two routes. First, an AI system is high-risk if it is a product, or the safety component of a product, covered by the EU product safety legislation listed in Annex I and that product must undergo a third-party conformity assessment (Article 6(1)). Second, AI systems used in the areas listed in Annex III, such as biometrics, critical infrastructure, education, employment, essential services, law enforcement, migration and justice, are high-risk (Article 6(2)). An Annex III system escapes the classification if it does not pose a significant risk to health, safety or fundamental rights, for example because it only performs a narrow procedural task, but a system that profiles people is always high-risk (Article 6(3)).",
+      "key_facts": [
+        "safety component of a product, or a product itself, covered by Annex I legislation requiring third-party conformity assessment",
+        "AI systems in the use cases listed in Annex III",
+        "Annex III systems can be exempt if they do not pose a significant risk, except when profiling people"
+      ]
+    },
+    {
+      "id": "q10",
+      "question": "Is AI that screens job applications considered high-risk?",
+      "category": "high-risk systems",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["anx_III.pt_4"],
+      "expected_headings": ["Annex III, point 4"],
+      "related_chunk_ids": ["art_6.par_2"],
+      "expected_answer": "Yes. Annex III, point 4 lists AI systems used for recruitment or selection of people, in particular to place targeted job adverts, to analyse and filter job applications and to evaluate candidates, as high-risk. The same applies to AI used for decisions on promotion, dismissal, task allocation or monitoring of workers' performance and behaviour (Annex III, point 4, together with Article 6(2)).",
+      "key_facts": [
+        "recruitment and selection AI is high-risk",
+        "includes analysing and filtering job applications and evaluating candidates",
+        "also covers decisions on promotion, termination, task allocation and performance monitoring"
+      ]
+    },
+    {
+      "id": "q11",
+      "question": "Does a company have to tell me when I am chatting with a bot instead of a human?",
+      "category": "transparency",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_50.par_1"],
+      "expected_headings": ["Article 50(1)"],
+      "related_chunk_ids": [],
+      "expected_answer": "Yes. Providers must design AI systems that interact directly with people so that those people are informed they are dealing with an AI system, unless that is obvious to a reasonably well-informed and observant person given the circumstances. The duty does not apply to systems authorised by law to detect, prevent, investigate or prosecute crime, unless they are open to the public for reporting crimes (Article 50(1)).",
+      "key_facts": [
+        "people must be informed that they are interacting with an AI system",
+        "exception when it is obvious from the context",
+        "exception for systems authorised by law for law enforcement purposes"
+      ]
+    },
+    {
+      "id": "q12",
+      "question": "Do deepfakes have to be labelled as fake?",
+      "category": "transparency",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_50.par_4"],
+      "expected_headings": ["Article 50(4)"],
+      "related_chunk_ids": ["art_3.pt_60", "art_50.par_2"],
+      "expected_answer": "Yes. Anyone deploying an AI system that generates or manipulates image, audio or video content constituting a deep fake must disclose that the content has been artificially generated or manipulated. For evidently artistic, creative, satirical or fictional works the disclosure only needs to be made in a way that does not spoil the work. AI-generated text published to inform the public on matters of public interest must also be disclosed, unless a human has reviewed it and someone holds editorial responsibility (Article 50(4)). In addition, providers must mark the outputs of generative systems in a machine-readable format (Article 50(2)).",
+      "key_facts": [
+        "deployers must disclose that deep fake content is artificially generated or manipulated",
+        "lighter disclosure for artistic, creative, satirical or fictional works",
+        "AI-generated text on matters of public interest must be disclosed unless human-reviewed under editorial responsibility"
+      ]
+    },
+    {
+      "id": "q13",
+      "question": "Do high-risk AI systems have to be supervised by humans?",
+      "category": "high-risk systems",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_14.par_1", "art_14.par_2"],
+      "expected_headings": ["Article 14(1)", "Article 14(2)"],
+      "related_chunk_ids": ["art_14.par_3", "art_14.par_4"],
+      "expected_answer": "Yes. High-risk AI systems must be designed and developed, including with suitable human-machine interface tools, so that people can effectively oversee them while they are in use (Article 14(1)). The purpose of human oversight is to prevent or minimise risks to health, safety or fundamental rights that may arise when the system is used as intended or misused in a foreseeable way (Article 14(2)).",
+      "key_facts": [
+        "high-risk AI systems must allow effective human oversight during use",
+        "appropriate human-machine interface tools",
+        "aim is to prevent or minimise risks to health, safety or fundamental rights"
+      ]
+    },
+    {
+      "id": "q14",
+      "question": "Does my employer have to tell me if they use a high-risk AI system on me at work?",
+      "category": "high-risk systems",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_26.par_7"],
+      "expected_headings": ["Article 26(7)"],
+      "related_chunk_ids": ["anx_III.pt_4"],
+      "expected_answer": "Yes. Before putting a high-risk AI system into use at the workplace, an employer must inform the workers' representatives and the affected workers that they will be subject to it. The information is given in line with the rules and procedures of EU and national law on informing workers (Article 26(7)).",
+      "key_facts": [
+        "employers must inform affected workers before using a high-risk AI system at the workplace",
+        "workers' representatives must also be informed"
+      ]
+    },
+    {
+      "id": "q15",
+      "question": "Do companies have to train their staff about AI?",
+      "category": "obligations",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_4"],
+      "expected_headings": ["Article 4"],
+      "related_chunk_ids": ["art_3.pt_56"],
+      "expected_answer": "Yes. Providers and deployers of AI systems must take measures to ensure, to their best extent, a sufficient level of AI literacy among their staff and other people who operate or use AI systems on their behalf. The measures should take into account the people's technical knowledge, experience, education and training, the context in which the AI is used and the people it is used on (Article 4).",
+      "key_facts": [
+        "providers and deployers must ensure a sufficient level of AI literacy of their staff",
+        "also covers other persons operating or using AI systems on their behalf",
+        "takes into account technical knowledge, experience, education and the context of use"
+      ]
+    },
+    {
+      "id": "q16",
+      "question": "What is a general-purpose AI model and what do the companies that make them have to do?",
+      "category": "general-purpose AI",
+      "difficulty": "hard",
+      "answerable": true,
+      "expected_chunk_ids": ["art_3.pt_63", "art_53.par_1"],
+      "expected_headings": ["Article 3, point (63)", "Article 53(1)"],
+      "related_chunk_ids": ["art_51.par_1", "art_51.par_2"],
+      "expected_answer": "A general-purpose AI model is an AI model, typically trained on large amounts of data with self-supervision, that displays significant generality, can competently perform a wide range of distinct tasks and can be integrated into many downstream systems (Article 3, point 63). Its providers must keep up-to-date technical documentation for the authorities, provide information and documentation to the companies that build AI systems on the model, put in place a policy to comply with EU copyright law, and publish a sufficiently detailed summary of the content used for training (Article 53(1)). Models with systemic risk, presumed when training compute exceeds 10^25 floating point operations, have additional obligations (Article 51).",
+      "key_facts": [
+        "general-purpose AI model displays significant generality and performs a wide range of distinct tasks",
+        "providers must draw up technical documentation",
+        "providers must provide information to downstream providers of AI systems",
+        "providers must have a copyright compliance policy",
+        "providers must publish a summary of the training content"
+      ]
+    },
+    {
+      "id": "q17",
+      "question": "How high can the fines be for breaking the AI Act?",
+      "category": "penalties",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_99.par_3", "art_99.par_4"],
+      "expected_headings": ["Article 99(3)", "Article 99(4)"],
+      "related_chunk_ids": ["art_99.par_5", "art_99.par_6", "art_101.par_1"],
+      "expected_answer": "The highest fines are for using prohibited AI practices: up to EUR 35 million or 7 % of total worldwide annual turnover, whichever is higher (Article 99(3)). Breaching most other obligations, such as those of providers, deployers, importers, distributors, notified bodies and the transparency rules, can cost up to EUR 15 million or 3 % of turnover (Article 99(4)). Supplying incorrect, incomplete or misleading information to authorities can cost up to EUR 7.5 million or 1 % of turnover (Article 99(5)). For small and medium-sized enterprises the lower of the two amounts applies (Article 99(6)).",
+      "key_facts": [
+        "up to EUR 35 million or 7 % of worldwide annual turnover for prohibited practices",
+        "up to EUR 15 million or 3 % for most other obligations",
+        "up to EUR 7.5 million or 1 % for supplying incorrect information",
+        "whichever amount is higher"
+      ]
+    },
+    {
+      "id": "q18",
+      "question": "When do the rules of the AI Act start to apply?",
+      "category": "timeline",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_113"],
+      "expected_headings": ["Article 113"],
+      "related_chunk_ids": ["art_111.par_1", "art_111.par_2", "art_111.par_3"],
+      "expected_answer": "The Act applies in general from 2 August 2026. Some parts start earlier or later: the general provisions and the prohibited practices (Chapters I and II) apply from 2 February 2025; the rules on notified bodies, general-purpose AI models, governance and penalties (Chapter III Section 4, Chapters V, VII and XII and Article 78) apply from 2 August 2025, except for the fines on general-purpose AI providers under Article 101; and the high-risk classification of AI in products covered by Annex I (Article 6(1)) applies from 2 August 2027 (Article 113).",
+      "key_facts": [
+        "general application from 2 August 2026",
+        "Chapters I and II, including prohibited practices, from 2 February 2025",
+        "general-purpose AI, governance and penalty rules from 2 August 2025",
+        "Article 6(1) high-risk rules from 2 August 2027"
+      ]
+    },
+    {
+      "id": "q19",
+      "question": "Can I complain somewhere if I think an AI system is breaking the rules?",
+      "category": "rights and remedies",
+      "difficulty": "easy",
+      "answerable": true,
+      "expected_chunk_ids": ["art_85"],
+      "expected_headings": ["Article 85"],
+      "related_chunk_ids": ["art_70.par_1"],
+      "expected_answer": "Yes. Any natural or legal person who has grounds to believe the Act has been infringed may submit a complaint to the relevant market surveillance authority. The complaint is taken into account for market surveillance activities and handled under the authority's procedures. This does not affect other administrative or judicial remedies (Article 85).",
+      "key_facts": [
+        "anyone may lodge a complaint with the market surveillance authority",
+        "without prejudice to other administrative or judicial remedies"
+      ]
+    },
+    {
+      "id": "q20",
+      "question": "If an AI system makes a decision about me, do I have a right to an explanation?",
+      "category": "rights and remedies",
+      "difficulty": "medium",
+      "answerable": true,
+      "expected_chunk_ids": ["art_86.par_1"],
+      "expected_headings": ["Article 86(1)"],
+      "related_chunk_ids": ["art_86.par_2", "art_86.par_3"],
+      "expected_answer": "Yes, in certain cases. If a deployer takes a decision based on the output of a high-risk AI system listed in Annex III (except critical infrastructure systems under point 2), and that decision produces legal effects or similarly significantly affects you in a way you consider harmful to your health, safety or fundamental rights, you have the right to obtain from the deployer a clear and meaningful explanation of the role the AI system played in the decision and the main elements of the decision (Article 86(1)).",
+      "key_facts": [
+        "right to a clear and meaningful explanation from the deployer",
+        "applies to decisions based on high-risk AI systems listed in Annex III",
+        "decision must produce legal effects or similarly significantly affect the person",
+        "explanation covers the role of the AI system and the main elements of the decision"
+      ]
+    },
+    {
+      "id": "q21",
+      "question": "Which AI chatbot does the EU AI Act recommend as the best one to use?",
+      "category": "out of scope",
+      "difficulty": "easy",
+      "answerable": false,
+      "expected_chunk_ids": [],
+      "expected_headings": [],
+      "related_chunk_ids": [],
+      "expected_answer": "The Act does not recommend, rank or endorse any AI product. It is a law that sets rules for providers and deployers of AI systems. A correct answer says that the question is not covered by the Act instead of inventing an answer.",
+      "key_facts": [
+        "the Act does not recommend or rank AI products",
+        "the answer should say the question is not covered rather than make something up"
+      ]
+    },
+    {
+      "id": "q22",
+      "question": "Do I need a cookie banner on my website under the AI Act?",
+      "category": "out of scope",
+      "difficulty": "easy",
+      "answerable": false,
+      "expected_chunk_ids": [],
+      "expected_headings": [],
+      "related_chunk_ids": [],
+      "expected_answer": "The Act says nothing about cookies or cookie banners. Those rules come from other EU laws, in particular the ePrivacy Directive and the GDPR. A correct answer says the question is not covered by the AI Act and does not borrow transparency provisions such as Article 50 to invent a cookie rule.",
+      "key_facts": [
+        "the Act does not regulate cookies or cookie banners",
+        "the answer should point to other laws (ePrivacy Directive, GDPR) or say the question is out of scope rather than invent a rule"
+      ]
+    },
+    {
+      "id": "q23",
+      "question": "Has any company been fined under the AI Act yet?",
+      "category": "out of scope",
+      "difficulty": "medium",
+      "answerable": false,
+      "expected_chunk_ids": [],
+      "expected_headings": [],
+      "related_chunk_ids": ["art_99.par_1", "art_99.par_3"],
+      "expected_answer": "The text of the Act cannot answer this. It only sets out the framework for penalties: Member States lay down the rules and impose fines on operators (Article 99) and the Commission fines providers of general-purpose AI models (Article 101). Whether any fine has actually been imposed is a question of current events outside the law's text. A correct answer says the tool only knows the text of the Act and cannot report on enforcement actions.",
+      "key_facts": [
+        "the Act's text contains no information about actual fines imposed",
+        "the answer should say it cannot know this from the law rather than name a company or amount"
+      ]
+    },
+    {
+      "id": "q24",
+      "question": "What are the rules for AI in the United States?",
+      "category": "out of scope",
+      "difficulty": "easy",
+      "answerable": false,
+      "expected_chunk_ids": [],
+      "expected_headings": [],
+      "related_chunk_ids": [],
+      "expected_answer": "The Act is EU law and does not describe the rules of the United States or any other country. It only states that it applies to providers and deployers outside the EU when their AI systems or outputs reach the EU market (Article 2(1)). A correct answer says the question is outside the Act and does not describe US law.",
+      "key_facts": [
+        "the Act does not describe US or other non-EU AI rules",
+        "the answer should say the question is out of scope rather than summarise US law"
+      ]
+    },
+    {
+      "id": "q25",
+      "question": "Does the AI Act require AI systems to run on renewable energy?",
+      "category": "out of scope",
+      "difficulty": "hard",
+      "answerable": false,
+      "expected_chunk_ids": [],
+      "expected_headings": [],
+      "related_chunk_ids": ["art_40.par_2", "art_95.par_2", "anx_XI.sec_1.pt_2"],
+      "expected_answer": "No. The Act contains no requirement to use renewable energy. Energy appears only indirectly: the Commission's standardisation requests must ask for deliverables on reducing the energy consumption of high-risk AI systems (Article 40(2)), voluntary codes of conduct may cover environmental sustainability and energy-efficient programming (Article 95(2)), and providers of general-purpose AI models must document the known or estimated energy consumption of their models (Annex XI). The word 'renewable' in the Act refers to renewable terms of office, not to energy. A correct answer says there is no such requirement and does not dress up these documentation and voluntary provisions as one.",
+      "key_facts": [
+        "the Act does not require AI systems to run on renewable energy",
+        "energy only appears as documentation, standardisation and voluntary code-of-conduct topics, not as a binding energy-source requirement"
+      ]
+    }
+  ]
+}
