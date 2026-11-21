@@ -1,7 +1,7 @@
 Actsistant
 ==========
 
-Actsistant is an AI tool that can answer questions on the EU AI Act currently in the PoC stage.
+Actsistant is an AI tool that can answer questions on the EU AI Act. Currently in PoC stage.
 
 # Architecture
 
