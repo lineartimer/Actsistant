@@ -41,6 +41,9 @@ fi
 rm -rf ../../src/.venv
 rm -rf ../../src/__pycache__
 rm -rf ../../src/api/__pycache__
+rm -rf ../../src/core/__pycache__
+rm -rf ../../src/core/agents/__pycache__
+rm -rf ../../src/core/tools/__pycache__
 rm -rf ../../src/database/__pycache__
 rm -rf ../../src/tests/__pycache__
 

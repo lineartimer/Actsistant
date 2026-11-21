@@ -37,6 +37,7 @@ pip3 install -r requirements.txt
 
 if command -v ollama >/dev/null 2>&1; then
     ollama pull qwen3-embedding:0.6b
+    ollama pull qwen3:8b
 else
     echo "Error: Ollama is not installed."
 fi

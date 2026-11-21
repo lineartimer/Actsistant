@@ -1,22 +1,22 @@
 from fastapi import APIRouter
 
-from database.database import search_chunks
+from core.agents.search_agent import answer_question
 
 
 ask_router = APIRouter()
 
 @ask_router.get("/api/ask")
 async def ask(query: str) -> dict:
-    hits = await search_chunks(query)
+    answer = await answer_question(query)
 
     return {
-        "result": "Hello World!",
+        "result": answer.text,
         "sources": [
             {
                 "title": hit.chunk.heading,
                 "score": hit.score,
                 "source": hit.chunk.text
             }
-            for hit in hits
+            for hit in answer.hits
         ]
     }

@@ -39,3 +39,11 @@ On its first startup the app downloads the EU AI Act, chunks it, embeds the chun
 * Weaviate collection `EuAiActChunk`, one object per chunk, with the properties `chunk_id` (e.g. `art_6.par_1`), `kind` (recital / article / annex), `heading` (citation, e.g. `Article 6(1)`), `title`, `chapter`, `section`, `article`, `paragraph`, `text` and `position`
 * Vectors are computed by the app (the collection is configured for self-provided vectors) with `qwen3-embedding:0.6b`, pulled by `init.command`. The embedded text of a chunk is its heading and title followed by its text. Another Ollama model can be set with the `EMBEDDING_MODEL` environment variable; as vectors of different models cannot be compared, the model is recorded in the collection and a change rebuilds the collection on the next startup
 * Retrieval is hybrid search: vector search on the embedded question combined with BM25 keyword search
+
+# Agent
+
+Questions are answered by a LangGraph agent (`src/core/agents/search_agent.py`) running a chat model served by Ollama, `qwen3:8b` by default (pulled by `init.command`; another Ollama model that supports tool calling can be set with the `CHAT_MODEL` environment variable). The first answer after a start takes longer because Ollama loads the model.
+
+* The agent has one tool, `search_eu_ai_act` (`src/core/tools/search.py`), which runs the hybrid search described above and returns the matching passages with their citation headings
+* The graph is the plain tool calling loop: the model is instructed to search before answering, the tool node runs the search, and the model answers from the passages it got back, citing them by heading. The model may search more than once; a recursion limit stops it from looping
+* The passages the agent retrieved are returned by `/api/ask` as `sources` next to the answer

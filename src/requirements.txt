@@ -1,5 +1,7 @@
 fastapi
 httpx
+langchain-ollama
+langgraph
 pytest
 structlog
 uvicorn
