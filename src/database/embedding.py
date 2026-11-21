@@ -1,5 +1,6 @@
 import httpx
 import structlog
+from tqdm import tqdm
 
 from config import EMBEDDING_MODEL, OLLAMA_URL
 
@@ -30,11 +31,15 @@ async def embed_documents(texts: list[str]) -> list[list[float]]:
 
     vectors = []
 
-    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
-        for start in range(0, len(texts), BATCH_SIZE):
-            vectors.extend(await _embed(client, texts[start:start + BATCH_SIZE]))
+    _logger.info("Embedding documents", total=len(texts))
 
-            _logger.info("Embedding documents", done=len(vectors), total=len(texts))
+    async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
+        with tqdm(total=len(texts), desc="Embedding documents", unit="chunk") as progress:
+            for start in range(0, len(texts), BATCH_SIZE):
+                batch = await _embed(client, texts[start:start + BATCH_SIZE])
+
+                vectors.extend(batch)
+                progress.update(len(batch))
 
     return vectors
 
