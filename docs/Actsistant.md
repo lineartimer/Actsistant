@@ -92,4 +92,5 @@ Currently, there are tests for the following:
 
 # Next steps
 
-Refactor the entire repo.
+* Refactor the entire repo
+* Start improving accuracy interatively by fine-tuning the chunking, the embedding, the search (semantic vs. BM25), and the agentic workflow (e.g. adding a rephraser agent, improving the prompts or trying different models)
