@@ -10,6 +10,8 @@ Typical users that can benefit from using Actsistant:
 
 The service can be run using a cloud LLM or fully locally with Ollama.
 
+Currently, the repo is just a quick-and-dirty PoC.
+
 The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
 # Prerequisites

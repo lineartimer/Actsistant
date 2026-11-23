@@ -1,7 +1,9 @@
 Actsistant
 ==========
 
-Actsistant is an AI tool that can answer questions on the EU AI Act. Currently in PoC stage.
+Actsistant is an AI tool that can answer questions on the EU AI Act. 
+
+Currently, the repo is just a quick-and-dirty PoC.
 
 # Architecture
 
@@ -87,3 +89,7 @@ Currently, there are tests for the following:
 * Content of the database
 * The search
 * HTTP behavior of the API
+
+# Next steps
+
+Refactor the entire repo.
