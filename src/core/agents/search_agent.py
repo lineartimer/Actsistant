@@ -1,13 +1,12 @@
 from dataclasses import dataclass
-from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
+from langchain_core.messages import HumanMessage, SystemMessage, ToolCall, ToolMessage
 from langchain_ollama import ChatOllama
 from langchain_openai import ChatOpenAI
-from langgraph.graph import END, START, MessagesState, StateGraph
+from langgraph.graph import END, START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
-from langgraph.prebuilt import ToolNode, tools_condition
 from pydantic import BaseModel, Field, create_model
 import structlog
-from typing import Literal
+from typing import Literal, TypedDict
 
 from config import CLOUD_CHAT_MODEL, LOCAL_CHAT_MODEL, LOCAL_RUN_ONLY, OLLAMA_URL, OPENAI_API_KEY
 from core.tools.search import search_eu_ai_act
@@ -17,23 +16,16 @@ from database.database import Hit
 SYSTEM_PROMPT = (
     "You are Actsistant, an assistant that answers questions about the EU AI Act "
     "(Regulation (EU) 2024/1689).\n\n"
-    "Always call search_eu_ai_act first to retrieve the passages of the Act relevant to "
-    "the question, then answer based only on those passages. Cite every passage you rely "
-    "on inline by its bracketed heading exactly as shown in the search results, for "
-    "example [Article 6(1)] or [Recital 12]. If the passages do not answer the question, "
-    "say so instead of guessing."
+    "The question comes with the passages of the Act retrieved for it. Answer based only "
+    "on those passages. Cite every passage you rely on inline by its bracketed heading "
+    "exactly as shown, for example [Article 6(1)] or [Recital 12]. If the passages do not "
+    "answer the question, say so instead of guessing."
 )
-
-TOOLS = [search_eu_ai_act]
 
 # Context window of the chat model in tokens. Ollama's default is too small to hold
 # the system prompt, the question and the retrieved passages, and Ollama silently
 # drops the beginning of the conversation when it does not fit
 CTX_SIZE = 16384
-
-# Maximum number of graph steps per question, so that a model that keeps calling
-# the search tool is stopped
-RECURSION_LIMIT = 10
 
 
 _logger = structlog.get_logger(__name__)
@@ -54,7 +46,11 @@ class StructuredAnswer(BaseModel):
     )
 
 
-class AgentState(MessagesState):
+class AgentState(TypedDict):
+    question: str
+    # The retrieved passages twice: as text for the model and as objects for the application
+    passages: str
+    hits: list[Hit]
     answer: StructuredAnswer
 
 
@@ -88,11 +84,11 @@ def answer_schema(headings: list[str]) -> type[StructuredAnswer]:
 
 def build_agent() -> CompiledStateGraph:
     """
-    Builds the agent: a tool calling loop in which the model searches the EU AI Act
-    and answers from the passages it found, followed by a step that turns the
-    conversation into a structured answer.
+    Builds the agent: a fixed two-step pipeline in which the search tool is called once
+    with the question and the model then answers from the passages it returned, in its
+    structured form.
 
-        START -> agent -> (tool calls?) -> tools -> agent -> ... -> respond -> END
+        START -> search -> answer -> END
     """
 
     if OPENAI_API_KEY and not LOCAL_RUN_ONLY:
@@ -100,9 +96,8 @@ def build_agent() -> CompiledStateGraph:
             model=CLOUD_CHAT_MODEL,
             api_key=OPENAI_API_KEY,
             temperature=0,
-            # GPT-6 is a reasoning model and reasons by default. Tool calling and the
-            # temperature need reasoning switched off. Switch on if you want to trade
-            # speed for quality
+            # GPT-6 is a reasoning model and reasons by default. The temperature needs
+            # reasoning switched off. Switch on if you want to trade speed for quality
             reasoning_effort="none"
         )
     else:
@@ -115,36 +110,42 @@ def build_agent() -> CompiledStateGraph:
             # Switch on if you want to trade speed for quality
             reasoning=False
         )
-    agent_model = model.bind_tools(TOOLS)
 
-    async def call_model(state: AgentState) -> dict:
-        response = await agent_model.ainvoke([SystemMessage(SYSTEM_PROMPT), *state["messages"]])
+    async def search(state: AgentState) -> dict:
+        # Invoked as a tool call, the tool returns the passages both as text and as Hit
+        # objects. Errors such as an unreachable database are raised, not answered
+        result: ToolMessage = await search_eu_ai_act.ainvoke(
+            ToolCall(
+                name=search_eu_ai_act.name,
+                args={"query": state["question"]},
+                id="search",
+                type="tool_call"
+            )
+        )
 
-        return {"messages": [response]}
+        return {"passages": result.content, "hits": result.artifact}
 
-    async def respond(state: AgentState) -> dict:
-        # Not every provider can combine tool calling with structured output in one
-        # model call, so the answer is put into its structured form in a call of its own
-        headings = [hit.chunk.heading for hit in _retrieved_hits(state["messages"])]
+    async def answer(state: AgentState) -> dict:
+        headings = [hit.chunk.heading for hit in state["hits"]]
         structured_model = model.with_structured_output(answer_schema(headings))
 
-        answer = await structured_model.ainvoke(
-            [SystemMessage(SYSTEM_PROMPT), *state["messages"]]
-        )
+        answer = await structured_model.ainvoke([
+            SystemMessage(SYSTEM_PROMPT),
+            HumanMessage(
+                f"Passages of the EU AI Act retrieved for the question:\n\n"
+                f"{state['passages']}\n\n"
+                f"Question: {state['question']}"
+            )
+        ])
 
         return {"answer": answer}
 
     graph = StateGraph(AgentState)
-    graph.add_node("agent", call_model)
-    # Errors such as an unreachable database are raised instead of being fed back
-    # to the model as text, which it would answer with an apology
-    graph.add_node("tools", ToolNode(TOOLS, handle_tool_errors=False))
-    graph.add_node("respond", respond)
-    graph.add_edge(START, "agent")
-    # Once the model stops calling tools, its answer is put into the structured form
-    graph.add_conditional_edges("agent", tools_condition, {"tools": "tools", END: "respond"})
-    graph.add_edge("tools", "agent")
-    graph.add_edge("respond", END)
+    graph.add_node("search", search)
+    graph.add_node("answer", answer)
+    graph.add_edge(START, "search")
+    graph.add_edge("search", "answer")
+    graph.add_edge("answer", END)
 
     return graph.compile()
 
@@ -158,12 +159,9 @@ async def answer_question(question: str) -> Answer:
     those of the retrieved passages of the Act that it names as its sources.
     """
 
-    state = await agent.ainvoke(
-        {"messages": [HumanMessage(question)]},
-        config={"recursion_limit": RECURSION_LIMIT}
-    )
+    state = await agent.ainvoke({"question": question})
     answer: StructuredAnswer = state["answer"]
-    retrieved = _retrieved_hits(state["messages"])
+    retrieved: list[Hit] = state["hits"]
     hits = [hit for hit in retrieved if hit.chunk.heading in answer.sources]
 
     # Only possible when nothing was retrieved or the provider does not enforce the schema
@@ -178,15 +176,3 @@ async def answer_question(question: str) -> Answer:
     )
 
     return Answer(text=answer.text, hits=hits)
-
-
-def _retrieved_hits(messages: list[AnyMessage]) -> list[Hit]:
-    # The model may search more than once, so the same chunk can turn up twice
-    hits: dict[str, Hit] = {}
-
-    for message in messages:
-        if isinstance(message, ToolMessage) and message.artifact:
-            for hit in message.artifact:
-                hits.setdefault(hit.chunk.chunk_id, hit)
-
-    return list(hits.values())
