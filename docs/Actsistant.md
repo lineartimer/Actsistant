@@ -57,7 +57,9 @@ The following embedding model is used: qwen3-embedding:0.6b. Reasons for selecti
 
 ## Agents
 
-By default, the Qwen 3, 8B model is used locally through Ollama.
+The agent implements simple RAG using one tool that does a hybrid search against the Weaviate database.
+
+By default, the Qwen 3 (8B) model is used locally through Ollama.
 
 If you want to use GPT-6 Luna instead, add a .env file with an OpenAI API key:
 
@@ -68,7 +70,9 @@ LOCAL_RUN_ONLY=False
 
 If you want to revert back to using the local model, set the `LOCAL_RUN_ONLY` variable to True.
 
-The agent has one tool that does a hybrid search against the database.
+## Scripts
+
+The repo comes with scripts that prepare everyhing that is needed to run the service locally if the necessary software and hardware requirements are met. There is also a cleanup script that resets everything.
 
 # Limitations
 
