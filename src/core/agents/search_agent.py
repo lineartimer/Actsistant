@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 from langchain_core.messages import AnyMessage, HumanMessage, SystemMessage, ToolMessage
 from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langgraph.graph import END, START, MessagesState, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.prebuilt import ToolNode, tools_condition
@@ -8,7 +9,7 @@ from pydantic import BaseModel, Field, create_model
 import structlog
 from typing import Literal
 
-from config import CHAT_MODEL, OLLAMA_URL
+from config import CLOUD_CHAT_MODEL, LOCAL_CHAT_MODEL, LOCAL_RUN_ONLY, OLLAMA_URL, OPENAI_API_KEY
 from core.tools.search import search_eu_ai_act
 from database.database import Hit
 
@@ -94,15 +95,26 @@ def build_agent() -> CompiledStateGraph:
         START -> agent -> (tool calls?) -> tools -> agent -> ... -> respond -> END
     """
 
-    model = ChatOllama(
-        model=CHAT_MODEL,
-        base_url=OLLAMA_URL,
-        temperature=0,
-        num_ctx=CTX_SIZE,
-        # Qwen3 is a thinking model and thinking is allowed by default.
-        # Switch on if you want to trade speed for quality
-        reasoning=False
-    )
+    if OPENAI_API_KEY and not LOCAL_RUN_ONLY:
+        model = ChatOpenAI(
+            model=CLOUD_CHAT_MODEL,
+            api_key=OPENAI_API_KEY,
+            temperature=0,
+            # GPT-6 is a reasoning model and reasons by default. Tool calling and the
+            # temperature need reasoning switched off. Switch on if you want to trade
+            # speed for quality
+            reasoning_effort="none"
+        )
+    else:
+        model = ChatOllama(
+            model=LOCAL_CHAT_MODEL,
+            base_url=OLLAMA_URL,
+            temperature=0,
+            num_ctx=CTX_SIZE,
+            # Qwen3 is a thinking model and thinking is allowed by default.
+            # Switch on if you want to trade speed for quality
+            reasoning=False
+        )
     agent_model = model.bind_tools(TOOLS)
 
     async def call_model(state: AgentState) -> dict:

@@ -53,6 +53,21 @@ The following embedding model is used: qwen3-embedding:0.6b. Reasons for selecti
 * Benchmark quality is high for its size
 * Permissive Apache 2.0 licence
 
+## Agents
+
+By default, the Qwen 3, 8B model is used locally through Ollama.
+
+If you want to use GPT-6 Luna instead, add a .env file with an OpenAI API key:
+
+```
+OPENAI_API_KEY="..."
+LOCAL_RUN_ONLY=False
+```
+
+If you want to revert back to using the local model, set the `LOCAL_RUN_ONLY` variable to True.
+
+The agent has one tool that does a hybrid search against the database.
+
 # Limitations
 
 * History not being kept
