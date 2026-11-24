@@ -23,7 +23,7 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 
 * Clone the repo and start Docker Desktop
 * Open a terminal, CD into the `src` folder and run `docker compose up --build -d --wait`
-* Once this command returns (which takes about 12 mins on a 2022 MacBook Pro), open [localhost:5005/docs](http://localhost:5005/docs) in the browser
+* Once this command returns (which takes about 12 mins on a 2022 MacBook Pro), open [localhost:5005/docs](http://localhost:5005/docs) in a browser
 * The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created. When run in a container, Ollama has no access to the GPU
 
 Example questions
