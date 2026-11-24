@@ -40,12 +40,14 @@ The first two of these questions can be answered using the text, the third one c
 * With no API key, the local Qwen 3 (8B) model will be used
 * If you want to use the GPT 6 Luna model for question answering, insert your own OpenAI API key
 * If you want to revert to the Qwen 3 (8B) model again, change the `LOCAL_RUN_ONLY` variable to `True`
+* After changing the .env file, CD into the `src` folder, and run `docker compose up -d --wait`
+* If the local model hasn't been downloaded, this change will take some time (about 10 mins on a MacBook Pro) but it only has to be done once. For each subsequent changes, it will take only a few seconds to take effect
 
 # Debugging
 
 * Open Actsistant.code-workspace in VS Code (double-click it)
 * Open a terminal and CD into the `src` folder
-* Run the following commands
+* Run the following commands (note that you might need python/pip instead of python3/pip3)
   * `python3 -m venv .venv`
   * `source .venv/bin/activate`
   * `pip3 install --upgrade pip`
