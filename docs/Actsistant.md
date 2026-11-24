@@ -13,6 +13,8 @@ To try out the endpoints: [localhost:5005/docs](http://localhost:5005/docs)
 
 The api uses FastAPI's built-in mechanisms to verify the input.
 
+There are no blocking function calls when running the service in the cloud even though the Weaviate client is synchronous. Data is retrieved from the database using a worker thread.
+
 ## Database
 
 The downloaded AI Act is stored in a [Weaviate](https://weaviate.io/) database. Hybrid search is used to find relevant chunks (semantic search + BM25 keyword search).

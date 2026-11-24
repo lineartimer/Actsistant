@@ -5,7 +5,7 @@ import structlog
 from typing import Annotated
 
 from config import ANSWER_TIMEOUT
-from core.agents.search_agent import answer_question
+from core.agents.answering import answer_question
 
 
 # Keep the question well inside the context window

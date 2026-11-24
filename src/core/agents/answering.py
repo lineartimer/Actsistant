@@ -32,14 +32,11 @@ _logger = structlog.get_logger(__name__)
 
 
 class StructuredAnswer(BaseModel):
-    """
-    The final answer to the question about the EU AI Act.
-    """
-
     text: str = Field(
         description="The answer for the user, based only on the retrieved passages and "
                     "citing them inline by heading, for example [Article 6(1)]"
     )
+
     sources: list[str] = Field(
         description="The headings of the retrieved passages the answer relies on, "
                     "empty if none of them answers the question"
@@ -48,7 +45,6 @@ class StructuredAnswer(BaseModel):
 
 class AgentState(TypedDict):
     question: str
-    # The retrieved passages twice: as text for the model and as objects for the application
     passages: str
     hits: list[Hit]
     answer: StructuredAnswer

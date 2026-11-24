@@ -5,7 +5,7 @@ from structlog.testing import capture_logs
 
 import api.ask as ask_api
 from api.ask import MAX_QUESTION_LENGTH
-from core.agents.search_agent import Answer
+from core.agents.answering import Answer
 from database.chunker import Chunk
 from database.database import Hit
 from main import app
