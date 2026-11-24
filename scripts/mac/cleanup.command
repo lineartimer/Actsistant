@@ -19,6 +19,8 @@ tell application "Terminal"
 end tell
 eof
 
+cd -- "$(dirname -- "$BASH_SOURCE")"
+
 rm -rf ../../.claude
 rm -rf ../../src/.venv
 rm -rf ../../src/__pycache__

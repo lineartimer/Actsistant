@@ -10,7 +10,7 @@ Typical users that can benefit from using Actsistant:
 
 The service can be run using a cloud LLM or fully locally with Ollama.
 
-Currently, the repo is just a quick-and-dirty PoC.
+Currently, the repo is just a PoC.
 
 The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
@@ -18,10 +18,6 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 
 * [Docker Desktop](https://docs.docker.com/get-docker/desktop/)
 * Optional: [VS Code](https://code.visualstudio.com/download) for debugging
-
-For local run:
-* 16 GB of RAM
-* [Ollama](https://ollama.com/download)
 
 # Quickstart
 
@@ -52,13 +48,12 @@ The first two of these questions can be answered using the text, the third one c
 # Testing
 
 Prerequisites:
-* The init script has been run
-* The application has been started at least once
+* Virtual environment with dependencies in place (see Debugging)
 
 In VS Code, click on the test tab and run the tests.
 
 Alternatively, run tests from the terminal:
-* CD into the `src` folder
+* Open a terminal, and CD into the `src` folder
 * Run `source .venv/bin/activate`
 * Run `pytest`
 
