@@ -1,4 +1,4 @@
-name: actsistant
+name: actsistant-db
 
 services:
   weaviate:

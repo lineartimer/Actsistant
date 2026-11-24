@@ -1,3 +1,4 @@
+import asyncio
 from dataclasses import asdict, dataclass, fields
 import structlog
 import time
@@ -114,10 +115,14 @@ async def search_chunks(query: str, limit: int = 5) -> list[Hit]:
         raise DatabaseError("Database is not initialized")
 
     collection = _client.collections.get(COLLECTION_NAME)
+    vector = await embed_query(query)
 
-    response = collection.query.hybrid(
+    # The Weaviate client is synchronous and its query would block the event loop,
+    # stalling every other request, so it runs in a worker thread
+    response = await asyncio.to_thread(
+        collection.query.hybrid,
         query=query,
-        vector=await embed_query(query),
+        vector=vector,
         target_vector=VECTOR_NAME,
         alpha=HYBRID_ALPHA,
         limit=limit,
