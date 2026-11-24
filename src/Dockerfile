@@ -9,17 +9,16 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY src/requirements.txt .
+COPY requirements.txt .
 RUN pip install -r requirements.txt
 
-COPY src/ .
+COPY . .
 
 RUN useradd --create-home --shell /usr/sbin/nologin app && chown -R app:app /app
 USER app
 
 EXPOSE 5005
 
-HEALTHCHECK --interval=15s --timeout=5s --start-period=15m --retries=3 \
-    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5005/health', timeout=3)"
+# The healthcheck is defined in docker-compose.yml
 
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5005"]

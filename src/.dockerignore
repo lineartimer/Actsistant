@@ -1,8 +1,5 @@
 # Kept out of the build context: the image stays small and no secrets or local
 # state end up in it
-.git
-.gitignore
-.claude
 .DS_Store
 **/.DS_Store
 **/__pycache__
@@ -10,14 +7,10 @@
 **/.venv
 **/.env
 .env.example
-docs
-scripts
-LICENSE
-README.md
 Dockerfile
 docker-compose.yml
 .dockerignore
-src/.vscode
-src/Actsistant.code-workspace
-src/database/*.xhtml
-src/tests/integration_tests/test_act.md
+.vscode
+Actsistant.code-workspace
+database/*.xhtml
+tests/integration_tests/test_act.md

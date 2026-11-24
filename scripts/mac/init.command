@@ -43,8 +43,8 @@ else
 fi
 
 if ensure_docker; then
-    # The compose file lives in the repo root
-    (cd .. && docker compose down -v --remove-orphans && docker compose up -d weaviate)
+    docker compose down -v --remove-orphans
+    docker compose up -d weaviate
 else
     echo "Error: Docker could not be started."
 fi

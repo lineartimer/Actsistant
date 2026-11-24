@@ -88,11 +88,8 @@ if (Get-Command ollama -ErrorAction SilentlyContinue) {
 }
 
 if (Start-DockerIfNeeded) {
-    # The compose file lives in the repo root
-    Push-Location ..
     docker compose down -v --remove-orphans
     docker compose up -d weaviate
-    Pop-Location
 } else {
     Write-Host "Error: Docker could not be started."
 }

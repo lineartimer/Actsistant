@@ -21,10 +21,10 @@ cd ../../src
 
 source .venv/bin/activate
 
-# Settings come from the .env file in the repo root, shared with docker compose
-if [ -f ../.env ]; then
+# Settings come from the .env file shared with docker compose
+if [ -f .env ]; then
     set -a
-    source ../.env
+    source .env
     set +a
 fi
 

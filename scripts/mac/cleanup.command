@@ -33,7 +33,7 @@ ensure_docker() {
 cd -- "$(dirname -- "$BASH_SOURCE")"
 
 if ensure_docker; then
-    (cd ../.. && docker compose down -v --remove-orphans)
+    (cd ../../src && docker compose down -v --remove-orphans)
 else
     echo "Docker could not be started. Cleanup of containers failed."
 fi

@@ -25,27 +25,10 @@ For local run:
 
 # Quickstart
 
-Clone the repo and start Docker Desktop.
-
-The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created.
-
-Depending on your system, follow the below instructions:
-
-Windows
-
-* Run `scripts\win\init.ps1`
-* Run `scripts\win\run.ps1`
-* Open [http://localhost:5005/docs](http://localhost:5005/docs) and have a play with the endpoints
-* To reset everything locally, run the cleanup script: `scripts\win\cleanup.ps1`
-
-MacOS
-
-* Run `scripts/mac/init.command`
-  * In case of insufficient privileges, cd into `scripts/mac` and use `ls -l` to see access privileges
-  * If missing, use `chmod +x *.command` to add execute privilege
-* Run `scripts/mac/run.command`
-* Open [http://localhost:5005/docs](http://localhost:5005/docs) and have a play with the endpoints
-* To reset everything locally, run the cleanup script: `scripts/mac/cleanup.command`
+* Clone the repo and start Docker Desktop
+* Open a terminal, CD into the `src` folder and run `docker compose up --build -d --wait`
+* Once this command returns (which takes about 12 mins on a 2022 MacBook Pro), open [http://localhost:5005/docs](http://localhost:5005/docs) in the browser
+* The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created. When run in a container, Ollama has no access to the GPUs
 
 Example questions
 

@@ -66,12 +66,10 @@ function Wait-KeyPress {
 
 Set-TerminalBounds
 
-$root = Join-Path $PSScriptRoot "..\.."
-$src = Join-Path $root "src"
+$src = Join-Path $PSScriptRoot "..\..\src"
 
 if (Start-DockerIfNeeded) {
-    # The compose file lives in the repo root
-    Push-Location $root
+    Push-Location $src
     docker compose down -v --remove-orphans
     Pop-Location
 } else {

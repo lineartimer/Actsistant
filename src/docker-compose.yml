@@ -1,4 +1,4 @@
-# Run: docker compose up --build
+# Run: docker compose up --build -d --wait   (returns once the API answers)
 # Settings are read from a .env file (see .env.example)
 
 name: actsistant
@@ -25,6 +25,15 @@ services:
         condition: service_healthy
       ollama-models:
         condition: service_completed_successfully
+    healthcheck:
+      # /health answers only once the Act is in the database, which takes minutes on
+      # the first start: checked every 5s while starting, every 30s afterwards
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5005/health', timeout=3)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30m
+      start_interval: 5s
 
   weaviate:
     image: semitechnologies/weaviate:1.39.7
@@ -40,10 +49,11 @@ services:
       - weaviate_data:/var/lib/weaviate
     healthcheck:
       test: ["CMD", "wget", "--spider", "-q", "http://localhost:8080/v1/.well-known/ready"]
-      interval: 5s
+      interval: 30s
       timeout: 5s
-      retries: 24
-      start_period: 10s
+      retries: 3
+      start_period: 30s
+      start_interval: 5s
 
   ollama:
     image: ollama/ollama:0.40.18
@@ -57,10 +67,11 @@ services:
       OLLAMA_KV_CACHE_TYPE: q8_0
     healthcheck:
       test: ["CMD", "ollama", "list"]
-      interval: 5s
+      interval: 30s
       timeout: 5s
-      retries: 24
-      start_period: 10s
+      retries: 3
+      start_period: 30s
+      start_interval: 5s
 
   ollama-models:
     image: ollama/ollama:0.40.18
