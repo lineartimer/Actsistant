@@ -45,7 +45,8 @@ rm -rf ../../src/core/__pycache__
 rm -rf ../../src/core/agents/__pycache__
 rm -rf ../../src/core/tools/__pycache__
 rm -rf ../../src/database/__pycache__
-rm -rf ../../src/tests/__pycache__
+rm -rf ../../src/tests/unit_tests/__pycache__
+rm -rf ../../src/tests/integration_tests/__pycache__
 
 rm -f ../../src/database/*.xhtml
 rm -f ../../src/tests/test_act.md
