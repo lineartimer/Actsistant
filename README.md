@@ -41,6 +41,12 @@ The first two of these questions can be answered using the text, the third one c
 # Debugging
 
 * Open Actsistant.code-workspace in VS Code (double-click it)
+* Open a terminal and CD into the `src` folder
+* Run the following commands
+  * `python3 -m venv .venv`
+  * `source .venv/bin/activate`
+  * `pip3 install --upgrade pip`
+  * `pip3 install -r requirements.txt`
 * Hit F5
 
 # Testing
