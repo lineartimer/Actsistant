@@ -23,8 +23,8 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 
 * Clone the repo and start Docker Desktop
 * Open a terminal, CD into the `src` folder and run `docker compose up --build -d --wait`
-* Once this command returns (which takes about 12 mins on a 2022 MacBook Pro), open [http://localhost:5005/docs](http://localhost:5005/docs) in the browser
-* The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created. When run in a container, Ollama has no access to the GPUs
+* Once this command returns (which takes about 12 mins on a 2022 MacBook Pro), open [localhost:5005/docs](http://localhost:5005/docs) in the browser
+* The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created. When run in a container, Ollama has no access to the GPU
 
 Example questions
 
@@ -33,6 +33,13 @@ Example questions
 * Has any company been fined under the AI Act yet?
 
 The first two of these questions can be answered using the text, the third one cannot.
+
+## Configuring model usage (local vs. cloud)
+
+* Rename .env.example to .env
+* With no API key, the local Qwen 3 (8B) model will be used
+* If you want to use the GPT 6 Luna model for question answering, insert your own OpenAI API key
+* If you want to revert to the Qwen 3 (8B) model again, change the `LOCAL_RUN_ONLY` variable to `True`
 
 # Debugging
 
@@ -43,7 +50,7 @@ The first two of these questions can be answered using the text, the third one c
   * `source .venv/bin/activate`
   * `pip3 install --upgrade pip`
   * `pip3 install -r requirements.txt`
-* Hit F5
+* Hit F5 and open [localhost:5006/docs](http://localhost:5006/docs)
 
 # Testing
 
