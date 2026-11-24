@@ -54,7 +54,8 @@ if (-not (Test-Path $venvPython)) {
     exit 1
 }
 
-$envFile = Join-Path $PWD.Path ".env"
+# Settings come from the .env file in the repo root, shared with docker compose
+$envFile = Join-Path $PWD.Path "..\.env"
 if (Test-Path $envFile) {
     foreach ($line in Get-Content $envFile) {
         $line = $line.Trim()

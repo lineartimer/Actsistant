@@ -33,13 +33,15 @@ ensure_docker() {
 cd -- "$(dirname -- "$BASH_SOURCE")"
 
 if ensure_docker; then
-    (cd ../../src && docker compose down -v --remove-orphans)
+    (cd ../.. && docker compose down -v --remove-orphans)
 else
     echo "Docker could not be started. Cleanup of containers failed."
 fi
 
+rm -rf ../../.claude
 rm -rf ../../src/.venv
 rm -rf ../../src/__pycache__
+rm -rf ../../src/.pytest_cache
 rm -rf ../../src/api/__pycache__
 rm -rf ../../src/core/__pycache__
 rm -rf ../../src/core/agents/__pycache__
@@ -49,7 +51,7 @@ rm -rf ../../src/tests/unit_tests/__pycache__
 rm -rf ../../src/tests/integration_tests/__pycache__
 
 rm -f ../../src/database/*.xhtml
-rm -f ../../src/tests/test_act.md
+rm -f ../../src/tests/integration_tests/test_act.md
 
 echo
 read -p "Press any key to continue..."

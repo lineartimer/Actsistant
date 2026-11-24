@@ -66,10 +66,12 @@ function Wait-KeyPress {
 
 Set-TerminalBounds
 
-$src = Join-Path $PSScriptRoot "..\..\src"
+$root = Join-Path $PSScriptRoot "..\.."
+$src = Join-Path $root "src"
 
 if (Start-DockerIfNeeded) {
-    Push-Location $src
+    # The compose file lives in the repo root
+    Push-Location $root
     docker compose down -v --remove-orphans
     Pop-Location
 } else {
@@ -84,8 +86,9 @@ $paths = @(
     "core\agents\__pycache__",
     "core\tools\__pycache__",
     "database\__pycache__",
-    "tests\__pycache__",
-    "tests\test_act.md"
+    "tests\unit_tests\__pycache__",
+    "tests\integration_tests\__pycache__",
+    "tests\integration_tests\test_act.md"
 )
 foreach ($p in $paths) {
     Remove-Item -Path (Join-Path $src $p) -Recurse -Force -ErrorAction SilentlyContinue
