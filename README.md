@@ -70,7 +70,7 @@ In VS Code, click on the test tab and run the tests.
 
 Alternatively, run tests from the terminal:
 * CD into the `src` folder
-* Rune `source .venv/bin/activate`
+* Run `source .venv/bin/activate`
 * Run `pytest`
 
 # More information
