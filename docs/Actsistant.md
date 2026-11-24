@@ -78,10 +78,20 @@ If you want to revert back to using the local model, set the `LOCAL_RUN_ONLY` va
 
 The repo comes with scripts that prepare everyhing that is needed to run the service locally if the necessary software and hardware requirements are met. There is also a cleanup script that resets everything.
 
+# Metrics
+
+The most important metrics of the application:
+* Response accuracy
+* Response latency
+* Average tokens per request
+* Average cost per request
+* Total and average number of users broken down hourly/daily/weekly/monthly
+
 # Limitations
 
 * History not being kept
 * No user management/authentication implemented
+* The codebase can only run with an embedding model running locally in Ollama
 
 # Tests
 
@@ -94,5 +104,6 @@ Currently, there are tests for the following:
 
 # Next steps
 
-* Refactor the entire repo
+* Refactor the entire repo to turn the current "quick-and-dirty" solution production-ready
 * Start improving accuracy interatively by fine-tuning the chunking, the embedding, the search (semantic vs. BM25), and the agentic workflow (e.g. adding a rephraser agent, improving the prompts or trying different models)
+* Integrate cloud solution for the embedding model
