@@ -53,12 +53,6 @@ def asked(monkeypatch: pytest.MonkeyPatch) -> list[str]:
 
 
 class FakeChatModel:
-    """
-    Stands in for the chat model of the agent: with_structured_output() hands back the
-    model itself and ainvoke() runs the reply the test has set, passing it the schema
-    of the answer the agent asked for.
-    """
-
     def __init__(self):
         self.reply = None
         self.schema = None
@@ -77,11 +71,6 @@ class FakeChatModel:
 
 @pytest.fixture
 def model(monkeypatch: pytest.MonkeyPatch) -> FakeChatModel:
-    """
-    Rebuilds the agent around a fake chat model, so that the real pipeline runs without
-    Ollama or OpenAI. The search of the database is stubbed by each test itself.
-    """
-
     model = FakeChatModel()
 
     monkeypatch.setattr(answering, "ChatOpenAI", lambda **_: model)
@@ -92,11 +81,6 @@ def model(monkeypatch: pytest.MonkeyPatch) -> FakeChatModel:
 
 
 def returning(hits: list[Hit]):
-    """
-    A stand-in for the search of the database, which embeds the question and queries
-    Weaviate, that finds the given hits for any question.
-    """
-
     async def search_chunks(query: str) -> list[Hit]:
         return hits
 

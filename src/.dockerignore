@@ -1,5 +1,3 @@
-# Kept out of the build context: the image stays small and no secrets or local
-# state end up in it
 .DS_Store
 **/.DS_Store
 **/__pycache__

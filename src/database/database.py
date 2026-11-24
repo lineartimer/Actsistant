@@ -40,10 +40,6 @@ class DatabaseError(Exception):
 
 
 def connect_database() -> weaviate.WeaviateClient:
-    """
-    Connects to Weaviate database.
-    """
-
     deadline = time.monotonic() + CONNECTION_TIMEOUT
 
     while True:
@@ -62,11 +58,6 @@ def connect_database() -> weaviate.WeaviateClient:
 
 
 async def initialize_database() -> None:
-    """
-    Downloads the EU AI Act, chunks it, creates embeddings and stores it in
-    the database on first startup.
-    """
-
     global _client
 
     _client = connect_database()
@@ -91,10 +82,6 @@ async def initialize_database() -> None:
 
 
 def close_database() -> None:
-    """
-    Closes the connection to the database.
-    """
-
     global _client
 
     if _client is not None:
@@ -103,14 +90,6 @@ def close_database() -> None:
 
 
 async def search_chunks(query: str, limit: int = 5) -> list[Hit]:
-    """
-    Finds the chunks of the EU AI Act most relevant to a question by hybrid search.
-
-    Args:
-        query: The question about the EU AI Act
-        limit: The maximum number of chunks returned, best first
-    """
-
     if _client is None:
         raise DatabaseError("Database is not initialized")
 
@@ -143,9 +122,7 @@ def _create_collection(client: weaviate.WeaviateClient) -> Collection:
 
         if collection.config.get().description == description:
             return collection
-
-        # The embedding model has changed and vectors of different models cannot be
-        # compared, so the collection is rebuilt from scratch
+        
         _logger.info("Embedding model changed, rebuilding database", model=EMBEDDING_MODEL)
 
         client.collections.delete(COLLECTION_NAME)
@@ -213,5 +190,4 @@ def _insert_chunks(
 
 
 def _to_chunk(properties: dict) -> Chunk:
-    # Properties with a None value are not stored
     return Chunk(**{field.name: properties.get(field.name) for field in fields(Chunk)})

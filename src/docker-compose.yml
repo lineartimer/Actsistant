@@ -1,6 +1,3 @@
-# Run: docker compose up --build -d --wait   (returns once the API answers)
-# Settings are read from a .env file (see .env.example)
-
 name: actsistant
 
 services:
@@ -26,8 +23,6 @@ services:
       ollama-models:
         condition: service_completed_successfully
     healthcheck:
-      # /health answers only once the Act is in the database, which takes minutes on
-      # the first start: checked every 5s while starting, every 30s afterwards
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5005/health', timeout=3)"]
       interval: 30s
       timeout: 5s
@@ -58,7 +53,6 @@ services:
   ollama:
     image: ollama/ollama:0.40.18
     ports:
-      # A natively installed Ollama listens on the same port, stop it first
       - "127.0.0.1:11434:11434"
     volumes:
       - ollama_models:/root/.ollama

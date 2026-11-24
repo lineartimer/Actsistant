@@ -5,13 +5,10 @@ from tqdm import tqdm
 from config import EMBEDDING_MODEL, OLLAMA_URL
 
 
-# Qwen3 Embedding models expect a question to be prefixed with an instruction that
-# describes the retrieval task, while documents are embedded as they are
 QUERY_INSTRUCTION = (
     "Given a question about the EU AI Act, retrieve the passages of the Act that answer it"
 )
 
-# Number of texts embedded per request
 BATCH_SIZE = 32
 
 REQUEST_TIMEOUT = 300
@@ -25,10 +22,6 @@ class EmbeddingError(Exception):
 
 
 async def embed_documents(texts: list[str]) -> list[list[float]]:
-    """
-    Embeds documents (chunks of the EU AI Act) with the embedding model served by Ollama.
-    """
-
     vectors = []
 
     _logger.info("Embedding documents", total=len(texts))
@@ -45,11 +38,6 @@ async def embed_documents(texts: list[str]) -> list[list[float]]:
 
 
 async def embed_query(text: str) -> list[float]:
-    """
-    Embeds a question with the same model as the documents, so that its vector can be
-    compared with theirs.
-    """
-
     async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
         [vector] = await _embed(client, [f"Instruct: {QUERY_INSTRUCTION}\nQuery: {text}"])
 
