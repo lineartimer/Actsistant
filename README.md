@@ -1,7 +1,7 @@
 Actsistant
 ==========
 
-Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers contain sources if the question can be answered based on the legal text.
+Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers include sources if the question can be answered based on the legal text.
 
 Typical users that can benefit from using Actsistant:
 * Product owners or engineering teams that build agentic AI systems

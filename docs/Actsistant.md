@@ -3,7 +3,7 @@ Actsistant
 
 Actsistant is an AI tool that can answer questions on the EU AI Act. 
 
-Currently, the repo is just a quick-and-dirty PoC.
+Currently, the repo is just in a PoC stage.
 
 # Architecture
 
