@@ -23,16 +23,13 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 
 * Clone the repo and start Docker Desktop
 * Open a terminal, CD into the `src` folder and run `docker compose up --build -d --wait`
-* Once this command returns (which takes about 12 mins on a 2022 MacBook Pro), open [localhost:5005/docs](http://localhost:5005/docs) in a browser
-* The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created. When run in a container, Ollama has no access to the GPU
-
-Example questions
-
-* Can my employer use AI to read my emotions at work?
-* Is AI that screens job applications considered high-risk?
-* Has any company been fined under the AI Act yet?
-
-The first two of these questions can be answered using the text, the third one cannot.
+* The first startup will take longer because both the embedding model and the language model for local run need to be downloaded, the EU AI Act needs to be chunked, and the embeddings must be created. Also, when run in a container, Ollama has no access to the GPU
+* Once the above command returns (which takes altogether about 24 mins on a 2022 MacBook Pro), open [localhost:5005/docs](http://localhost:5005/docs) in a browser
+* Click the "Try it out" button under the ask endpoint, and supply a question or use one of the questions that are provided with the documentation:
+  * Can my employer use AI to read my emotions at work?
+  * Is AI that screens job applications considered high-risk?
+  * Has any company been fined under the AI Act yet?
+* The first two of these questions can be answered using the text, the third one cannot
 
 ## Configuring model usage (local vs. cloud)
 
@@ -41,7 +38,7 @@ The first two of these questions can be answered using the text, the third one c
 * If you want to use the GPT 6 Luna model for question answering, insert your own OpenAI API key
 * If you want to revert to the Qwen 3 (8B) model again, change the `LOCAL_RUN_ONLY` variable to `True`
 * After changing the .env file, CD into the `src` folder, and run `docker compose up -d --wait`
-* If the local model hasn't been downloaded, this change will take some time (about 10 mins on a MacBook Pro) but it only has to be done once. For each subsequent changes, it will take only a few seconds to take effect
+* If the local model hasn't been downloaded, this change will take some time (about 10 mins on a MacBook Pro) but it only has to be done once. For each subsequent changes, it will take only a few seconds for the model change to take effect
 
 # Debugging
 
