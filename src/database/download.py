@@ -19,10 +19,6 @@ class DownloadError(Exception):
 
 
 async def download_act() -> bytes:
-    """
-    Downloads the EU AI Act as XHTML, unless it has been downloaded before.
-    """
-
     if EU_AI_ACT_PATH.exists():
         _logger.info("EU AI Act loaded from file", path=str(EU_AI_ACT_PATH))
         return EU_AI_ACT_PATH.read_bytes()

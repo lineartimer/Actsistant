@@ -3,17 +3,17 @@ Actsistant
 
 Actsistant is an AI tool that can answer questions on the EU AI Act. 
 
-Currently, the repo is just a quick-and-dirty PoC.
+Currently, the repo is in a PoC stage.
 
 # Architecture
 
 ## API
 
-To try out the endpoints: [localhost:5005/docs](http://localhost:5005/docs)
-
-The api uses FastAPI's built-in mechanisms to verify the input.
+The api is built with FastAPI and it uses the mechanisms that FastAPI provides to verify the input (e.g. length the input question).
 
 There are no blocking function calls when running the service in the cloud even though the Weaviate client is synchronous. Data is retrieved from the database using a worker thread.
+
+There is a standard `/health` endpoint implemented.
 
 ## Database
 
@@ -23,7 +23,7 @@ Reasons for choosing Weaviate:
 * Hybrid search in one call
 * Weaviate is one of the established vector databases
 
-The act is downloaded, chunked and embeddings are created on the first startup. This takes about a minute on a MacBook Pro.
+On the first startup, the act is downloaded, chunked and embeddings are created.
 
 The Weaviate collection has the following properties:
 * `chunk_id`
@@ -37,13 +37,15 @@ The Weaviate collection has the following properties:
 * `text`
 * `position`
 
+The contents of the database can be viewed with Weaviate Studio (a VS Code extension).
+
 ### Chunking
 
 Chunking follows the organic structure of the document: one unit of legal text (e.g. a paragraph) corresponds to one chunk. The heading of the text is stored in the chunk because it's often the heading that specifies what the text applies to.
 
 With this design, there is no need for overlapping chunks, and one citation in the response will correspond to one unit of text in the act.
 
-The downside is that chunk sizes vary, and for long chunks, the quality of the search might decrease but no chunks get truncated.
+The downside is that chunk sizes vary, and for long chunks, the quality of the search might decrease. No chunk gets truncated.
 
 Also, lists are treated differently than regular text. Long lists are split into several chunks but the text directly preceding the list is added to each chunk. Reasons for this are:
 * Units of texts containing lists can be very long
@@ -65,7 +67,7 @@ The agent implements simple RAG using one tool that does a hybrid search against
 
 By default, the Qwen 3 (8B) model is used locally through Ollama.
 
-If you want to use GPT-6 Luna instead, add a .env file with an OpenAI API key:
+If you want to use the GPT-6 Luna model instead, add an OpenAI API key to the .env file:
 
 ```
 OPENAI_API_KEY="..."
@@ -74,18 +76,22 @@ LOCAL_RUN_ONLY=False
 
 If you want to revert back to using the local model, set the `LOCAL_RUN_ONLY` variable to True.
 
+The models used can be configured in `config.py` (see variables `EMBEDDING_MODEL`, `LOCAL_CHAT_MODEL`, `CLOUD_CHAT_MODEL`)
+
 ## Scripts
 
-The repo comes with scripts that prepare everyhing that is needed to run the service locally if the necessary software and hardware requirements are met. There is also a cleanup script that resets everything.
+The repo comes with a cleanup script (untested for Windows) that deletes temporary files from the local copy of the repo.
 
 # Metrics
 
-The most important metrics of the application:
+Currently, no metrics are being collected. In order to start improving the question answering capbility of this service, metrics will be needed. The most important/useful metrics are:
 * Response accuracy
 * Response latency
 * Average tokens per request
 * Average cost per request
 * Total and average number of users broken down hourly/daily/weekly/monthly
+
+There is one test that measures the accuracy of the search on a golden dataset, and it is about 85% right now. The golden dataset was generated with Fable 5.1 with reasoning set to "extra high".
 
 # Limitations
 
@@ -104,6 +110,6 @@ Currently, there are tests for the following:
 
 # Next steps
 
-* Refactor the entire repo to turn the current "quick-and-dirty" solution production-ready
-* Start improving accuracy interatively by fine-tuning the chunking, the embedding, the search (semantic vs. BM25), and the agentic workflow (e.g. adding a rephraser agent, improving the prompts or trying different models)
+* Refactor the entire repo to turn the current PoC-stage solution production-ready
+* Start improving accuracy interatively by fine-tuning the chunking, the embedding, the search (semantic vs. BM25), and the agentic workflow (e.g. adding a rephraser agent, or improving the prompts, or trying different models)
 * Integrate cloud solution for the embedding model

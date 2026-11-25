@@ -35,10 +35,6 @@ ask_router = APIRouter()
 
 
 class AskRequest(BaseModel):
-    """
-    A question about the EU AI Act.
-    """
-
     question: Annotated[
         str,
         StringConstraints(strip_whitespace=True, min_length=1, max_length=MAX_QUESTION_LENGTH)

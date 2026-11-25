@@ -4,6 +4,8 @@ import os
 LOCAL_RUN_ONLY = os.getenv("LOCAL_RUN_ONLY", "False").lower() == "true"
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
+API_PORT = int(os.getenv("API_PORT", "5005"))
+
 WEAVIATE_HOST = os.getenv("WEAVIATE_HOST", "localhost")
 WEAVIATE_PORT = int(os.getenv("WEAVIATE_PORT", "8080"))
 WEAVIATE_GRPC_PORT = int(os.getenv("WEAVIATE_GRPC_PORT", "50051"))

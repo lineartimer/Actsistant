@@ -1,0 +1,14 @@
+.DS_Store
+**/.DS_Store
+**/__pycache__
+**/.pytest_cache
+**/.venv
+**/.env
+.env.example
+Dockerfile
+docker-compose.yml
+.dockerignore
+.vscode
+Actsistant.code-workspace
+database/*.xhtml
+tests/integration_tests/test_act.md

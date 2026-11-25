@@ -37,23 +37,6 @@ public static class ConsoleWin {
     }
 }
 
-function Start-DockerIfNeeded {
-    if (-not (Get-Command docker -ErrorAction SilentlyContinue)) { return $false }
-    docker info *> $null
-    if ($LASTEXITCODE -eq 0) { return $true }
-
-    Write-Host "Starting Docker Desktop..."
-    $dockerDesktop = Join-Path $Env:ProgramFiles "Docker\Docker\Docker Desktop.exe"
-    if (-not (Test-Path $dockerDesktop)) { return $false }
-    Start-Process -FilePath $dockerDesktop
-    for ($i = 0; $i -lt 60; $i++) {
-        Start-Sleep -Seconds 2
-        docker info *> $null
-        if ($LASTEXITCODE -eq 0) { return $true }
-    }
-    return $false
-}
-
 function Wait-KeyPress {
     Write-Host ""
     Write-Host "Press any key to continue..."
@@ -66,30 +49,27 @@ function Wait-KeyPress {
 
 Set-TerminalBounds
 
-$src = Join-Path $PSScriptRoot "..\..\src"
+$root = Join-Path $PSScriptRoot "..\.."
+$src = Join-Path $root "src"
 
-if (Start-DockerIfNeeded) {
-    Push-Location $src
-    docker compose down -v --remove-orphans
-    Pop-Location
-} else {
-    Write-Host "Docker could not be started. Cleanup of containers failed."
-}
-
-$paths = @(
-    ".venv",
-    "__pycache__",
-    "api\__pycache__",
-    "core\__pycache__",
-    "core\agents\__pycache__",
-    "core\tools\__pycache__",
-    "database\__pycache__",
-    "tests\__pycache__",
-    "tests\test_act.md"
+$dirs = @(
+    (Join-Path $root ".claude"),
+    (Join-Path $src ".venv"),
+    (Join-Path $src "__pycache__"),
+    (Join-Path $src ".pytest_cache"),
+    (Join-Path $src "api\__pycache__"),
+    (Join-Path $src "core\__pycache__"),
+    (Join-Path $src "core\agents\__pycache__"),
+    (Join-Path $src "core\tools\__pycache__"),
+    (Join-Path $src "database\__pycache__"),
+    (Join-Path $src "tests\unit_tests\__pycache__"),
+    (Join-Path $src "tests\integration_tests\__pycache__")
 )
-foreach ($p in $paths) {
-    Remove-Item -Path (Join-Path $src $p) -Recurse -Force -ErrorAction SilentlyContinue
+foreach ($d in $dirs) {
+    Remove-Item -Path $d -Recurse -Force -ErrorAction SilentlyContinue
 }
+
 Remove-Item -Path (Join-Path $src "database\*.xhtml") -Force -ErrorAction SilentlyContinue
+Remove-Item -Path (Join-Path $src "tests\integration_tests\test_act.md") -Force -ErrorAction SilentlyContinue
 
 Wait-KeyPress

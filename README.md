@@ -1,7 +1,7 @@
 Actsistant
 ==========
 
-Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers contain sources if the question can be answered based on the legal text.
+Actsistant is an AI assistant backend built with FastAPI, LangGraph and Weaviate that answers compliance questions about the EU AI Act. The answers include sources if the question can be answered based on the legal text.
 
 Typical users that can benefit from using Actsistant:
 * Product owners or engineering teams that build agentic AI systems
@@ -10,8 +10,6 @@ Typical users that can benefit from using Actsistant:
 
 The service can be run using a cloud LLM or fully locally with Ollama.
 
-Currently, the repo is just a quick-and-dirty PoC.
-
 The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
 # Prerequisites
@@ -19,57 +17,47 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 * [Docker Desktop](https://docs.docker.com/get-docker/desktop/)
 * Optional: [VS Code](https://code.visualstudio.com/download) for debugging
 
-For local run:
-* 16 GB of RAM
-* [Ollama](https://ollama.com/download)
-
 # Quickstart
 
-Clone the repo and start Docker Desktop.
+* Clone the repo and start Docker Desktop
+* The first startup will take longer because both the embedding model and the language model for local run need to be downloaded, the EU AI Act needs to be chunked, and the embeddings must be created. Also, when run in a container, Ollama has no access to the GPU. On a 2022 MacBook Pro, this first startup will take altogether about 24 mins
+* Open a terminal, CD into the `src` folder and run `docker compose up --build -d --wait`
+* Once the above command returns, open [localhost:5005/docs](http://localhost:5005/docs) in a browser
+* Click the "Try it out" button under the ask endpoint, and supply a question or use one of the questions that are provided with the documentation:
+  * Can my employer use AI to read my emotions at work?
+  * Is AI that screens job applications considered high-risk?
+  * Has any company been fined under the AI Act yet?
+* The first two of these questions can be answered using the text, the third one cannot
 
-The first startup will take longer because the EU AI Act must be downloaded, chunked, and the embeddings must be created.
+## Configuring model usage (local vs. cloud)
 
-Depending on your system, follow the below instructions:
-
-Windows
-
-* Run `scripts\win\init.ps1`
-* Run `scripts\win\run.ps1`
-* Open [http://localhost:5005/docs](http://localhost:5005/docs) and have a play with the endpoints
-* To reset everything locally, run the cleanup script: `scripts\win\cleanup.ps1`
-
-MacOS
-
-* Run `scripts/mac/init.command`
-  * In case of insufficient privileges, cd into `scripts/mac` and use `ls -l` to see access privileges
-  * If missing, use `chmod +x *.command` to add execute privilege
-* Run `scripts/mac/run.command`
-* Open [http://localhost:5005/docs](http://localhost:5005/docs) and have a play with the endpoints
-* To reset everything locally, run the cleanup script: `scripts/mac/cleanup.command`
-
-Example questions
-
-* Can my employer use AI to read my emotions at work?
-* Is AI that screens job applications considered high-risk?
-* Has any company been fined under the AI Act yet?
-
-The first two of these questions can be answered using the text, the third one cannot.
+* Rename .env.example to .env
+* With no API key, the local Qwen 3 (8B) model will be used
+* If you want to use the GPT 6 Luna model for question answering, insert your own OpenAI API key in .env
+* If you want to revert to the Qwen 3 (8B) model again, change the `LOCAL_RUN_ONLY` variable to `True`
+* After changing the .env file, CD into the `src` folder, and run `docker compose up -d --wait`
+* If the local model hasn't been downloaded, this change will take some time (about 10 mins on a 2022 MacBook Pro) but it only has to be done once. For each subsequent changes, it will take only a few seconds for the model change to take effect
 
 # Debugging
 
 * Open Actsistant.code-workspace in VS Code (double-click it)
-* Hit F5
+* Open a terminal and CD into the `src` folder
+* Run the following commands (note that you might need python/pip instead of python3/pip3)
+  * `python3 -m venv .venv`
+  * `source .venv/bin/activate`
+  * `pip3 install --upgrade pip`
+  * `pip3 install -r requirements.txt`
+* Hit F5 and open [localhost:5006/docs](http://localhost:5006/docs)
 
 # Testing
 
 Prerequisites:
-* The init script has been run
-* The application has been started at least once
+* Virtual environment with dependencies in place (see Debugging section above)
 
 In VS Code, click on the test tab and run the tests.
 
 Alternatively, run tests from the terminal:
-* CD into the `src` folder
+* Open a terminal, and CD into the `src` folder
 * Run `source .venv/bin/activate`
 * Run `pytest`
 

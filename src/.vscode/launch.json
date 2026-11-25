@@ -9,6 +9,9 @@
             "cwd": "${workspaceFolder}",
             "python": "${workspaceFolder}/.venv/bin/python",
             "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "API_PORT": "5006"
+            },
             "console": "integratedTerminal",
             "justMyCode": true
         }

@@ -137,6 +137,7 @@ def build_agent() -> CompiledStateGraph:
         return {"answer": answer}
 
     graph = StateGraph(AgentState)
+    
     graph.add_node("search", search)
     graph.add_node("answer", answer)
     graph.add_edge(START, "search")

@@ -51,18 +51,6 @@ class _Piece:
 
 
 def chunk(xhtml: bytes) -> list[Chunk]:
-    """
-    Splits the EU AI Act into chunks along its structure.
-
-    The Publications Office XHTML uses ELI markup: every recital, chapter, section,
-    article and annex is a div with a stable id ("rct_12", "cpt_III", "cpt_III.sct_1",
-    "art_6", "anx_III"), the numbered paragraphs of an article are divs with ids like
-    "006.001" and enumerated points are two-column tables (label, text).
-
-    Args:
-        xhtml: The Act as published by the Publications Office.
-    """
-
     root = ET.fromstring(xhtml)
     elements = {
         element.get("id"): element for element in root.iter() if element.get("id")
@@ -234,7 +222,6 @@ def _split_into_pieces(children: list[ET.Element]) -> list[_Piece]:
         lead_in = [heading] if heading else []
 
         if not any(_tag(member) == "table" for member in members):
-            # A sub-heading without points (e.g. an introduction) is one piece
             pieces.append(_Piece(
                 text="\n".join(lead_in + _render(members)), section=heading
             ))
@@ -342,7 +329,6 @@ def _render(elements, depth: int = 0) -> list[str]:
             lines.extend(_render(element, depth))
 
         elif tag not in ("col", "hr", "img", "br"):
-            # Paragraphs and inline elements
             text = _text(element)
             if text:
                 lines.append(_INDENT * depth + text)
