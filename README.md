@@ -10,8 +10,6 @@ Typical users that can benefit from using Actsistant:
 
 The service can be run using a cloud LLM or fully locally with Ollama.
 
-Currently, the repo is just a PoC.
-
 The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-content/EN/TXT/PDF/?uri=OJ:L_202401689).
 
 # Prerequisites
@@ -22,9 +20,9 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 # Quickstart
 
 * Clone the repo and start Docker Desktop
+* The first startup will take longer because both the embedding model and the language model for local run need to be downloaded, the EU AI Act needs to be chunked, and the embeddings must be created. Also, when run in a container, Ollama has no access to the GPU. On a 2022 MacBook Pro, this first startup will take altogether about 24 mins
 * Open a terminal, CD into the `src` folder and run `docker compose up --build -d --wait`
-* The first startup will take longer because both the embedding model and the language model for local run need to be downloaded, the EU AI Act needs to be chunked, and the embeddings must be created. Also, when run in a container, Ollama has no access to the GPU
-* Once the above command returns (which takes altogether about 24 mins on a 2022 MacBook Pro), open [localhost:5005/docs](http://localhost:5005/docs) in a browser
+* Once the above command returns, open [localhost:5005/docs](http://localhost:5005/docs) in a browser
 * Click the "Try it out" button under the ask endpoint, and supply a question or use one of the questions that are provided with the documentation:
   * Can my employer use AI to read my emotions at work?
   * Is AI that screens job applications considered high-risk?
@@ -35,10 +33,10 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 
 * Rename .env.example to .env
 * With no API key, the local Qwen 3 (8B) model will be used
-* If you want to use the GPT 6 Luna model for question answering, insert your own OpenAI API key
+* If you want to use the GPT 6 Luna model for question answering, insert your own OpenAI API key in .env
 * If you want to revert to the Qwen 3 (8B) model again, change the `LOCAL_RUN_ONLY` variable to `True`
 * After changing the .env file, CD into the `src` folder, and run `docker compose up -d --wait`
-* If the local model hasn't been downloaded, this change will take some time (about 10 mins on a MacBook Pro) but it only has to be done once. For each subsequent changes, it will take only a few seconds for the model change to take effect
+* If the local model hasn't been downloaded, this change will take some time (about 10 mins on a 2022 MacBook Pro) but it only has to be done once. For each subsequent changes, it will take only a few seconds for the model change to take effect
 
 # Debugging
 
@@ -54,7 +52,7 @@ The EU AI Act is available as a pdf [here](https://eur-lex.europa.eu/legal-conte
 # Testing
 
 Prerequisites:
-* Virtual environment with dependencies in place (see Debugging)
+* Virtual environment with dependencies in place (see Debugging section above)
 
 In VS Code, click on the test tab and run the tests.
 
